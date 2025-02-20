@@ -1,6 +1,6 @@
 # CG 2024/2025
 
-## Group T0xG0y
+## Group T03G10
 
 ## TP 1 Notes
 

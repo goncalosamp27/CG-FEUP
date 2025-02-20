@@ -1,5 +1,7 @@
 import { CGFscene, CGFcamera, CGFaxis } from "../lib/CGF.js";
 import { MyDiamond } from "./MyDiamond.js";
+import { MyTriangle } from "./MyTriangle.js";
+import { MyParallelogram } from "./MyParallelogram.js";
 
 /**
  * MyScene
@@ -11,7 +13,7 @@ export class MyScene extends CGFscene {
   }
   init(application) {
     super.init(application);
-    
+  
     this.initCameras();
     this.initLights();
 
@@ -26,12 +28,20 @@ export class MyScene extends CGFscene {
     //Initialize scene objects
     this.axis = new CGFaxis(this);
     this.diamond = new MyDiamond(this);
+    this.triangle = new MyTriangle(this);
+    this.parallelogram = new MyParallelogram(this);
 
     //Objects connected to MyInterface
     this.displayAxis = true;
+
+    this.displayDiamond = true;
+    this.displayTriangle = false;
+    this.displayParallelogram = false;
+
     this.scaleFactor = 1;
   }
   initLights() {
+    // por defeito as luzes vem desligadas, exceto a primeira
     this.lights[0].setPosition(15, 2, 5, 1);
     this.lights[0].setDiffuse(1.0, 1.0, 1.0, 1.0);
     this.lights[0].enable();
@@ -39,14 +49,14 @@ export class MyScene extends CGFscene {
   }
   initCameras() {
     this.camera = new CGFcamera(
-      0.4,
-      0.1,
-      500,
+      0.4, // angulo de observação
+      0.1, // limite inferior
+      500, // limite superior
       vec3.fromValues(15, 15, 15),
       vec3.fromValues(0, 0, 0)
     );
   }
-  setDefaultAppearance() {
+  setDefaultAppearance() { // material dos objetos
     this.setAmbient(0.2, 0.4, 0.8, 1.0);
     this.setDiffuse(0.2, 0.4, 0.8, 1.0);
     this.setSpecular(0.2, 0.4, 0.8, 1.0);
@@ -91,7 +101,9 @@ export class MyScene extends CGFscene {
 
     // ---- BEGIN Primitive drawing section
 
-    this.diamond.display();
+    if (this.displayDiamond) this.diamond.display();
+    if (this.displayTriangle) this.triangle.display();
+    if (this.displayParallelogram) this.parallelogram.display();
 
     // ---- END Primitive drawing section
   }
