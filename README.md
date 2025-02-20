@@ -3,8 +3,8 @@
 ## Group T0xG0y
 | Name             | Number    | E-Mail             |
 | ---------------- | --------- | ------------------ |
-| John Doe         | 201901010 | ...                |
-| Jane Doe         | 201901011 | ...                |
+| Gonçalo Araújo Guimarães Cardoso Sampaio | 202206636 | up202206636@up.pt |
+| João Henrique Andrade Proença| 202207835 | up202207835@up.pt |
 
 ----
 
