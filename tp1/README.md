@@ -8,4 +8,4 @@
 - In the second exercise (2), we created *_myTriangleSmall.js_* and *_myTriangleBig.js_* which are very similar to each other. We used *_myTriangle.js_* as a base and modified both vertices and indices.
 - Additionally, checkboxes were added for all figures, allowing us to control which ones should be displayed.
 
-![Screenshot 1](screenshots/cg-t03g10-tp1-1.png)
+![Screenshot 1](screenshots/cgra-t03g10-tp1-1.png)
