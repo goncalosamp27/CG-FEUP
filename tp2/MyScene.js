@@ -32,7 +32,7 @@ export class MyScene extends CGFscene {
 
     //Objects connected to MyInterface
     this.displayAxis = true;
-    this.displayTangram = true;
+    this.displayTangram = false;
     this.displayUnitCubeQuad = true; 
 
     this.scaleFactor = 1;
@@ -98,7 +98,19 @@ export class MyScene extends CGFscene {
 
     // ---- BEGIN Primitive drawing section
     if(this.displayUnitCubeQuad) {
+      this.pushMatrix();
+      this.translate(4, -0.51, 3);
+      this.rotate(3 * Math.PI / 2, 1, 0, 0);
+      this.scale(8,6,1)
+      this.setDiffuse(80 / 255, 80 / 255, 80/ 255, 255);
       this.unitCubeQuad.display();
+      this.popMatrix();
+
+      this.pushMatrix();
+      this.rotate(3 * Math.PI / 2, 1, 0, 0);
+      this.translate(4, -3, 0);
+      this.tangram.display();
+      this.popMatrix();
     }
 
     if (this.displayTangram){

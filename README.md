@@ -1,6 +1,6 @@
 # CG 2024/2025
 
-## Group T0xG0y
+## Group T03G10
 | Name             | Number    | E-Mail             |
 | ---------------- | --------- | ------------------ |
 | Gonçalo Araújo Guimarães Cardoso Sampaio | 202206636 | up202206636@up.pt |
