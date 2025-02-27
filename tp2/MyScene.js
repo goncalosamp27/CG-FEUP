@@ -4,7 +4,7 @@ import { MyTriangle } from "./MyTriangle.js";
 import { MyParallelogram } from "./MyParallelogram.js";
 import { MyTriangleSmall } from "./myTriangleSmall.js";
 import { MyTriangleBig } from "./myTriangleBig.js";
-import { MyTrangram } from "./MyTangram.js";
+import { MyTangram } from "./MyTangram.js";
 /**
  * MyScene
  * @constructor
@@ -34,7 +34,7 @@ export class MyScene extends CGFscene {
     this.parallelogram = new MyParallelogram(this);
     this.trianglesmall = new MyTriangleSmall(this);
     this.trianglebig = new MyTriangleBig(this);
-    this.tangram = new MyTrangram(this);
+    this.tangram = new MyTangram(this);
 
     //Objects connected to MyInterface
     this.displayAxis = true;
