@@ -9,7 +9,7 @@
 ![Screenshot 1](screenshots/cgra-t03g10-tp3-1.1.png)
 Figura 1: Cubo de Madeira
 
-- Na segunda parte do exercício 1, aplicamos diferentes materiais às figuras que compõem o tangram. O material do quadrado, (na figura original a verde), é costumizável, podendo ser alterado na interface.
+- Na segunda parte do exercício 1, aplicamos diferentes materiais às figuras que compõem o tangram de modo a reproduzir as cores da figura original. O material do quadrado, (na figura original a verde), é costumizável, podendo ser alterado na interface.
 
 ![Screenshot 2](screenshots/cgra-t03g10-tp3-1.2.png)
 Figura 2: Tangram e Materiais
