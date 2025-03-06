@@ -12,41 +12,108 @@ export class MyUnitCube extends CGFobject {
 	
 	initBuffers() {
 		this.vertices = [
-			0.5, 0.5, 0.5, // 0 superior direito frente
-			-0.5, 0.5, 0.5, // 1 superior esquerdo frente
-			-0.5, -0.5, 0.5, // 2 inferior esquerdo frente
-			0.5, -0.5, 0.5, // 3 inferior direita frente
-
-			0.5, 0.5, -0.5, // 4 superior direito trás
-			-0.5, 0.5, -0.5, // 5 superior esquerdo trás
-			-0.5, -0.5, -0.5, // 6 inferior esquerdo trás
-			0.5, -0.5, -0.5, // 7 inferior direita trás
+			// face frente
+			0.5, 0.5, 0.5,  // 0
+			-0.5, 0.5, 0.5, // 1
+			-0.5, -0.5, 0.5, // 2
+			0.5, -0.5, 0.5, // 3
+	
+			// face trás
+			0.5, 0.5, -0.5, // 4
+			-0.5, 0.5, -0.5, // 5
+			-0.5, -0.5, -0.5, // 6
+			0.5, -0.5, -0.5, // 7
+	
+			// face cima
+			0.5, 0.5, 0.5, // 8
+			-0.5, 0.5, 0.5, // 9
+			-0.5, 0.5, -0.5, // 10
+			0.5, 0.5, -0.5, // 11
+	
+			// face baixo
+			0.5, -0.5, 0.5, // 12
+			-0.5, -0.5, 0.5, // 13
+			-0.5, -0.5, -0.5, // 14
+			0.5, -0.5, -0.5, // 15
+	
+			// face direita
+			0.5, 0.5, 0.5, // 16
+			0.5, -0.5, 0.5, // 17
+			0.5, -0.5, -0.5, // 18
+			0.5, 0.5, -0.5, // 19
+	
+			// face esquerda
+			-0.5, 0.5, 0.5, // 20
+			-0.5, -0.5, 0.5, // 21
+			-0.5, -0.5, -0.5, // 22
+			-0.5, 0.5, -0.5, // 23
 		];
 
 		//Counter-clockwise reference of vertices
-		this.indices = [ 
-			         // assumindo que estámos a ver o cubo de frente: 
-			0, 1, 2, // face de frente
-			3, 0, 2, 
-			
-			6, 5, 4, // face de trás
-			6, 4, 7,
-
-			0, 4, 5, // face de cima
-			0, 5, 1,
-
-			6, 7, 3, // face de baixo
-			3, 2, 6,
-
-			7, 4, 0, // face lateral y positivo
-			7, 0, 3,
-
-			2, 1, 5, // face lateral y negativo
-			2, 5, 6,
+		this.indices = [
+			// Front face
+			0, 1, 2,
+			2, 3, 0,
+	
+			// Back face
+			6, 5, 4,
+			4, 7, 6,
+	
+			// Top face
+			10, 9, 8,
+			8, 11, 10,
+	
+			// Bottom face
+			12, 13, 14,
+			14, 15, 12,
+	
+			// Right face
+			16, 17, 18,
+			18, 19, 16,
+	
+			// Left face
+			22, 21, 20,
+			20, 23, 22
+		];
+	
+		this.normals = [
+			// Face frente (0, 0, 1)
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
+	
+			// Face trás (0, 0, -1)
+			0, 0, -1,
+			0, 0, -1,
+			0, 0, -1,
+			0, 0, -1,
+	
+			// Face cima (0, 1, 0)
+			0, 1, 0,
+			0, 1, 0,
+			0, 1, 0,
+			0, 1, 0,
+	
+			// Face baixo (0, -1, 0)
+			0, -1, 0,
+			0, -1, 0,
+			0, -1, 0,
+			0, -1, 0,
+	
+			// Face direita (1, 0, 0)
+			1, 0, 0,
+			1, 0, 0,
+			1, 0, 0,
+			1, 0, 0,
+	
+			// Face esquerda (-1, 0, 0)
+			-1, 0, 0,
+			-1, 0, 0,
+			-1, 0, 0,
+			-1, 0, 0,
 		];
 
-		//The defined indices (and corresponding vertices)
-		//will be read in groups of three to draw triangles
 		this.primitiveType = this.scene.gl.TRIANGLES;
 
 		this.initGLBuffers();
