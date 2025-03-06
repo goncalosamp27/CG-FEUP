@@ -23,7 +23,6 @@ export class MyTangram extends CGFobject {
 
   initMaterials() {  
     console.log("sim");
-
     this.materialBlue = new CGFappearance(this.scene);
     this.materialBlue.setAmbient(0.0, 0.0, 0.5, 1.0);
     this.materialBlue.setDiffuse(0.0, 0.0, 0.7, 1.0);
