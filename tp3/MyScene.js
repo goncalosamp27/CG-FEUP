@@ -4,6 +4,7 @@ import { MyCone } from "./MyCone.js";
 import { MyPlane } from "./MyPlane.js";
 import { MyTangram } from "./MyTangram.js";
 import { MyUnitCube } from "./myUnitCube.js";
+import { MyPrism } from "./MyPrism.js";
 
 /**
 * MyScene
@@ -34,17 +35,18 @@ export class MyScene extends CGFscene {
         this.pyramid = new MyPyramid(this, 3, 1);
         this.tangram = new MyTangram(this);
         this.unitcube = new MyUnitCube(this);
+        this.prism = new MyPrism(this, 8, 20);
         
-        this.objects = [this.plane, this.pyramid, this.cone, this.tangram, this.unitcube];
+        this.objects = [this.plane, this.pyramid, this.cone, this.tangram, this.unitcube, this.prism];
 
         // Labels and ID's for object selection on MyInterface
-        this.objectIDs = { 'Plane': 0 , 'Pyramid': 1, 'Cone': 2, 'Tangram': 3, 'UnitCube': 4};
+        this.objectIDs = { 'Plane': 0 , 'Pyramid': 1, 'Cone': 2, 'Tangram': 3, 'UnitCube': 4, 'Prism': 5};
 
         //Other variables connected to MyInterface
-        this.selectedObject = 0;
+        this.selectedObject = 5;
         this.selectedMaterial = 0;
         this.displayAxis = true;
-        this.displayNormals = false;
+        this.displayNormals = true;
         this.objectComplexity = 0.5;
         this.scaleFactor = 2.0;
         this.globalAmbientLightIntensity = 0.3; // valor inicial 

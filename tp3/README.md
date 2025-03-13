@@ -14,4 +14,6 @@ Figura 1: Cubo de Madeira
 ![Screenshot 2](screenshots/cgra-t03g10-tp3-1.2.png)
 Figura 2: Tangram e Materiais
 
-
+- No exercício 2, implementamos um prisma com um número variável de lados e de andares, mas mantendo sempre a sua altura a 1 Implementamos um algoritmo que criasse os vértices, as normais e os índices do prisma.
+![Screenshot 3](screenshots/cgra-t03g10-tp3-2.png)
+Figura 3: Prisma de 8 lados e 20 andares
