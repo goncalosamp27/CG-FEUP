@@ -17,3 +17,5 @@ Figura 2: Tangram e Materiais
 - No exercício 2, implementamos um prisma com um número variável de lados e de andares, mas mantendo sempre a sua altura a 1 Implementamos um algoritmo que criasse os vértices, as normais e os índices do prisma.
 ![Screenshot 3](screenshots/cgra-t03g10-tp3-2.png)
 Figura 3: Prisma de 8 lados e 20 andares
+
+- No exercício 3, na classe MyPrism, adaptámos os algoritmos responsáveis pela criação de vértices, normais e índices. Ao utilizarmos um material personalizável e ativarmos uma das luzes numa posição estratégica, conseguimos reforçar a ilusão de que a superfície do sólido aparenta ser curva. Observámos que este efeito se torna ainda mais evidente à medida que aumentamos tanto o número de slices como o número de stacks, realçando a suavidade visual do prisma.
