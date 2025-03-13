@@ -19,7 +19,7 @@ Figura 2: Tangram e Materiais
 ![Screenshot 3](screenshots/cgra-t03g10-tp3-2.png)
 Figura 3: Prisma de 8 lados e 20 andares
 
-- No exercício 3, na classe MyPrism, adaptámos os algoritmos responsáveis pela criação de vértices, normais e índices. Ao utilizarmos um material personalizável e ativarmos uma das luzes numa posição estratégica, conseguimos reforçar a ilusão de que a superfície do sólido aparenta ser curva. Observámos que este efeito se torna ainda mais evidente à medida que aumentamos tanto o número de slices como o número de stacks, realçando a suavidade visual do prisma.
+- No exercício 3, apartir da classe MyPrism, adaptámos os algoritmos responsáveis pela criação de vértices, normais e índices para a criação do Cilindro. Ao utilizarmos um material personalizável e ativarmos uma das luzes numa posição estratégica, conseguimos reforçar a ilusão de que a superfície do sólido aparenta ser curva. Observámos que este efeito se torna ainda mais evidente à medida que aumentamos tanto o número de slices como o número de stacks, realçando a suavidade visual do prisma.
 
 ![Screenshot 4](screenshots/cgra-t03g10-tp3-3.png)
 Figura 4: Cilindro
