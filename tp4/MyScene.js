@@ -1,6 +1,7 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture } from "../lib/CGF.js";
 import { MyQuad } from "./MyQuad.js";
 import { MyTangram } from "./MyTangram.js";
+import { MyUnitCubeQuad } from "./MyUnitCubeQuad.js";
 
 /**
  * MyScene
@@ -40,6 +41,24 @@ export class MyScene extends CGFscene {
         this.quadMaterial.setTextureWrap('REPEAT', 'REPEAT');
         //------
 
+        this.minecraftMaterial = new CGFappearance(this);
+        this.minecraftMaterial.setAmbient(0.1, 0.1, 0.1, 1);
+        this.minecraftMaterial.setDiffuse(0.9, 0.9, 0.9, 1);
+        this.minecraftMaterial.setSpecular(0.1, 0.1, 0.1, 1);
+        this.minecraftMaterial.setShininess(10.0);
+        this.minecraftTextTop = new CGFtexture(this, 'images/mineTop.png');
+        this.minecraftTextBot = new CGFtexture(this, 'images/mineBottom.png');
+        this.minecraftTextSide = new CGFtexture(this, 'images/mineSide.png');
+
+
+        this.minecraftCube = new MyUnitCubeQuad(this, this.minecraftTextTop, 
+                                                      this.minecraftTextBot, 
+                                                      this.minecraftTextSide, 
+                                                      this.minecraftTextSide, 
+                                                      this.minecraftTextSide, 
+                                                      this.minecraftTextSide
+                                                );
+
         //------ Textures
         this.texture1 = new CGFtexture(this, 'images/board.jpg');
         this.texture2 = new CGFtexture(this, 'images/floor.png');
@@ -49,7 +68,8 @@ export class MyScene extends CGFscene {
         //-------Objects connected to MyInterface
         this.displayAxis = true;
         this.displayQuad = false;
-        this.displayTangram = true;
+        this.displayTangram = false;
+        this.displayMinecraftCube = true;
         this.scaleFactor = 5;
         this.selectedTexture = -1;        
         this.wrapS = 0;
@@ -71,6 +91,7 @@ export class MyScene extends CGFscene {
         this.lights[0].enable();
         this.lights[0].update();
     }
+    
 
     initCameras() {
         this.camera = new CGFcamera(0.4, 0.1, 500, vec3.fromValues(15, 15, 15), vec3.fromValues(0, 0, 0));
@@ -97,7 +118,6 @@ export class MyScene extends CGFscene {
     }
 
     display() {
-  
         // ---- BEGIN Background, camera and axis setup
         // Clear image and depth buffer everytime we update the scene
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
@@ -109,24 +129,22 @@ export class MyScene extends CGFscene {
         this.applyViewMatrix();
 
         // Draw axis
-        if (this.displayAxis)
-            this.axis.display();
+        if (this.displayAxis) this.axis.display();
 
         this.setDefaultAppearance();
-
         this.scale(this.scaleFactor, this.scaleFactor, this.scaleFactor);
-
-    
 
         if (this.displayTangram) {
             this.tangram.display();
         }
 
         if (this.displayQuad){
-            this.quadMaterial.apply(); 
             this.quad.display();
         }
-
-        // ---- END Primitive drawing section
+        
+        if (this.displayMinecraftCube){
+            this.minecraftMaterial.apply(); 
+            this.minecraftCube.display();
+        }
     }
 }
