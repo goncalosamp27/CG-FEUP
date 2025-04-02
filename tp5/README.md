@@ -14,3 +14,5 @@ Figura 1: Bule Amarelo e Azul
 Figura 2: Bule Cinza
 
 - No exercício 2, aplicamos a textura da água com as sombras ao plano. As coordenadas da textura vão alterando ao longo do tempo e os vértices alteram-se consoante as componentes de cor da textura, criando uma sensação de relevo e movimento na água. 
+![Screenshot 3](screenshots/cgra-t03g10-tp5-3.png)
+Figura 3: Água
