@@ -1,6 +1,9 @@
+
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
+
+
 
 /**
  * MyScene
@@ -11,12 +14,14 @@ export class MyScene extends CGFscene {
     super();
   }
   init(application) {
+
     // this.zz = 0;
     super.init(application);
     this.initCameras();
     this.initLights();
 
     this.gl.clearColor(0, 0, 0, 1.0);
+
     this.gl.clearDepth(100.0);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.enable(this.gl.CULL_FACE);
@@ -79,6 +84,7 @@ export class MyScene extends CGFscene {
 
   update(t) {
     this.checkKeys();
+
     // this.zz += 0.1;
   }
 
