@@ -3,8 +3,6 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 
-
-
 /**
  * MyScene
  * @constructor
@@ -15,6 +13,11 @@ export class MyScene extends CGFscene {
   }
   init(application) {
 
+    this.displayPlane = false;
+    this.displayGlobe = true;
+
+    super.init(application);
+    
     // this.zz = 0;
     super.init(application);
     this.initCameras();
@@ -110,17 +113,21 @@ export class MyScene extends CGFscene {
     this.axis.display();
     this.setDefaultAppearance();
 
-    this.pushMatrix();
-    this.scale(400, 1, 400);
-    this.rotate(-Math.PI / 2, 1, 0, 0);
-    this.grassMaterial.apply();
-    // this.plane.display();
-    this.popMatrix();
-
-    this.pushMatrix();
-    this.rotate(3*Math.PI / 4, 0, 1, 0);
-    this.earthMaterial.apply();
-    this.sphere.display();
-    this.popMatrix();
+    if (this.displayPlane) {
+      this.pushMatrix();
+      this.scale(400, 1, 400);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.grassMaterial.apply();
+      this.plane.display();
+      this.popMatrix();
+    }
+  
+    if (this.displayGlobe) {
+      this.pushMatrix();
+      this.rotate(3 * Math.PI / 4, 0, 1, 0);
+      this.earthMaterial.apply();
+      this.sphere.display();
+      this.popMatrix();
+    }
   }
 }
