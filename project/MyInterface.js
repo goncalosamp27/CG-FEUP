@@ -17,8 +17,10 @@ export class MyInterface extends CGFinterface {
         // https://github.com/dataarts/dat.gui/blob/master/API.md
         this.gui = new dat.GUI();
         
+        this.gui.add(this.scene, 'displayAxis').name('Display Axis');
         this.gui.add(this.scene, 'displayPlane').name('Display Plane');
         this.gui.add(this.scene, 'displayGlobe').name('Display Globe');
+        this.gui.add(this.scene, 'displayPanorama').name('Display Panorama');
 
         this.initKeys();
 

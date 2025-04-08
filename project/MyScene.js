@@ -2,6 +2,7 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
+import { MyPanorama } from "./MyPanorama.js";
 
 /**
  * MyScene
@@ -13,8 +14,10 @@ export class MyScene extends CGFscene {
   }
   init(application) {
 
+    this.displayAxis = false;
     this.displayPlane = false;
-    this.displayGlobe = true;
+    this.displayGlobe = false;
+    this.displayPanorama = true;
 
     super.init(application);
     
@@ -35,6 +38,17 @@ export class MyScene extends CGFscene {
     this.axis = new CGFaxis(this, 20, 1);
     this.plane = new MyPlane(this, 64, 0, 10, 0, 10);
     this.sphere = new MySphere(this, 10, 50, 50);
+
+    const panoramaTexture = new CGFappearance(this);
+    panoramaTexture.setEmission(1.0, 1.0, 1.0, 1.0);
+    panoramaTexture.setAmbient(0.0, 0.0, 0.0, 1.0);
+    panoramaTexture.setDiffuse(0.0, 0.0, 0.0, 1.0);
+    panoramaTexture.setSpecular(0.0, 0.0, 0.0, 1.0);
+    panoramaTexture.setShininess(0.0);
+    panoramaTexture.loadTexture("textures/background.jpg");
+    panoramaTexture.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
+
+    this.panorama = new MyPanorama(this, panoramaTexture);
 
     this.grassMaterial = new CGFappearance(this);
     this.grassMaterial.setAmbient(0.1, 0.1, 0.1, 1);
@@ -60,11 +74,11 @@ export class MyScene extends CGFscene {
   }
   initCameras() {
     this.camera = new CGFcamera(
-      0.4,
+      Math.PI / 2, 
       0.1,
       1000,
-      vec3.fromValues(200, 200, 200),
-      vec3.fromValues(0, 0, 0)
+      vec3.fromValues(0, 0, 0),
+      vec3.fromValues(50, 100, 200)
     );
   }
   checkKeys() {
@@ -109,9 +123,16 @@ export class MyScene extends CGFscene {
     // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
 
-    // Draw axis
-    this.axis.display();
-    this.setDefaultAppearance();
+    
+    if (this.displayAxis) {
+      this.setDefaultAppearance();
+      this.axis.display();
+    }
+
+    if(this.displayPanorama) {
+      this.panorama.display();
+      this.setDefaultAppearance();
+    }
 
     if (this.displayPlane) {
       this.pushMatrix();

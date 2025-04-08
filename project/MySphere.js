@@ -1,11 +1,12 @@
 import { CGFobject } from '../lib/CGF.js';
 
 export class MySphere extends CGFobject {
-	constructor(scene, radius, slices, stacks) {
+	constructor(scene, radius, slices, stacks, invertNormals = false) {
 		super(scene);
 		this.radius = radius;
 		this.slices = slices;
 		this.stacks = stacks;
+		this.invertNormals = invertNormals;
 		this.initBuffers();
 	}
 
@@ -16,7 +17,7 @@ export class MySphere extends CGFobject {
 		this.texCoords = [];
 
 		const dPhi = 2 * Math.PI / this.slices;
-		const dTheta = Math.PI / (2 * this.stacks); // stacks só num hemisfério
+		const dTheta = Math.PI / (2 * this.stacks); 
 
 		for (let stack = 0; stack <= 2 * this.stacks; stack++) {
 			let theta = -Math.PI / 2 + stack * dTheta;
@@ -30,8 +31,16 @@ export class MySphere extends CGFobject {
 
 				this.vertices.push(x * this.radius, y * this.radius, z * this.radius);
 
-				const len = Math.sqrt(x * x + y * y + z * z);
-				this.normals.push(x / len, y / len, z / len);
+				let normalX = x;
+				let normalY = y;
+				let normalZ = z;
+
+				const len = Math.sqrt(normalX * normalX + normalY * normalY + normalZ * normalZ);
+				if (this.invertNormals) {
+					this.normals.push(-normalX / len, -normalY / len, -normalZ / len);
+				} else {
+					this.normals.push(normalX / len, normalY / len, normalZ / len);
+				}
 
 				let s = 1 - slice / this.slices;
 				let t = 1 - stack / (2 * this.stacks);
@@ -45,8 +54,13 @@ export class MySphere extends CGFobject {
 				let current = stack * (this.slices + 1) + slice;
 				let next = current + this.slices + 1;
 
-				this.indices.push(current, next, current + 1);
-				this.indices.push(current + 1, next, next + 1);
+				if (this.invertNormals) {
+					this.indices.push(current, current + 1, next);
+					this.indices.push(current + 1, next + 1, next);
+				} else {
+					this.indices.push(current, next, current + 1);
+					this.indices.push(current + 1, next, next + 1);
+				}
 			}
 		}
 
