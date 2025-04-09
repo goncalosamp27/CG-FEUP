@@ -77,8 +77,8 @@ export class MyScene extends CGFscene {
       Math.PI / 2, 
       0.1,
       1000,
-      vec3.fromValues(0, 0, 0),
-      vec3.fromValues(50, 100, 200)
+      vec3.fromValues(20, 20, 20),
+      vec3.fromValues(0, 0, 0)
     );
   }
   checkKeys() {
