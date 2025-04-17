@@ -3,6 +3,8 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
+import {MyWindow} from "./MyWindow.js"
+import {MyBuilding} from "./MyBuilding.js"
 
 /**
  * MyScene
@@ -15,9 +17,10 @@ export class MyScene extends CGFscene {
   init(application) {
 
     this.displayAxis = false;
-    this.displayPlane = false;
+    this.displayPlane = true;
     this.displayGlobe = false;
-    this.displayPanorama = true;
+    this.displayPanorama = false;
+    this.displayBuilding = true;
 
     super.init(application);
     
@@ -63,7 +66,20 @@ export class MyScene extends CGFscene {
     this.earthMaterial.setShininess(10.0);
     this.earthMaterial.loadTexture("textures/earth.jpg");
     this.earthMaterial.setTextureWrap('REPEAT', 'REPEAT');
-  }
+
+    const windowTexture = "textures/janela.png";
+  
+
+    this.helipadTexture = new CGFappearance(this);
+    this.helipadTexture.setAmbient(1, 1, 1, 1);
+    this.helipadTexture.setDiffuse(1, 1, 1, 1);
+    this.helipadTexture.setSpecular(0.1, 0.1, 0.1, 1);
+    this.helipadTexture.setShininess(10.0);
+    this.helipadTexture.loadTexture("textures/helipad.jpg");
+    this.helipadTexture.setTextureWrap('REPEAT', 'REPEAT');
+
+    this.building = new MyBuilding(this, 9, 3, 3, windowTexture, [0.82, 0.82, 0.82]);
+      }
   
   initLights() {
     this.lights[0].setPosition(200, 200, 200, 1);
@@ -150,5 +166,13 @@ export class MyScene extends CGFscene {
       this.sphere.display();
       this.popMatrix();
     }
+    if (this.displayBuilding) {
+      this.pushMatrix();
+      this.scale(5, 5, 5);  
+      this.building.display();
+      this.popMatrix();
+    }
+    
+    
   }
 }
