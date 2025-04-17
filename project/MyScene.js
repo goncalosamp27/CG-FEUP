@@ -3,7 +3,6 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
-import {MyWindow} from "./MyWindow.js"
 import {MyBuilding} from "./MyBuilding.js"
 
 /**
@@ -69,14 +68,6 @@ export class MyScene extends CGFscene {
 
     const windowTexture = "textures/window.png";
   
-
-    this.helipadTexture = new CGFappearance(this);
-    this.helipadTexture.setAmbient(1, 1, 1, 1);
-    this.helipadTexture.setDiffuse(1, 1, 1, 1);
-    this.helipadTexture.setSpecular(0.1, 0.1, 0.1, 1);
-    this.helipadTexture.setShininess(10.0);
-    this.helipadTexture.loadTexture("textures/helipad.jpg");
-    this.helipadTexture.setTextureWrap('REPEAT', 'REPEAT');
 
     this.building = new MyBuilding(this, 9, 3, 3, windowTexture, [0.82, 0.82, 0.82]);
       }

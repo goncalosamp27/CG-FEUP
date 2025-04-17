@@ -9,7 +9,7 @@ export class MyBuilding {
     this.numFloorsSide = numFloorsSide;
     this.windowsperfloor = windowsperfloor;
     this.windowTexture = windowTexture;
-    this.color = color; // Color for the walls
+    this.color = color; 
 
     this.initModules();
 
@@ -43,6 +43,15 @@ export class MyBuilding {
     this.door = new MyPlane(scene, 10);  // Create door object using MyPlane
 
     this.window = new MyWindow(scene, 1, 1, this.windowTexture);
+
+    this.helipadTexture = new CGFappearance(scene);
+    this.helipadTexture.setAmbient(1, 1, 1, 1);
+    this.helipadTexture.setDiffuse(1, 1, 1, 1);
+    this.helipadTexture.setSpecular(0.1, 0.1, 0.1, 1);
+    this.helipadTexture.setShininess(10.0);
+    this.helipadTexture.loadTexture("textures/helipad.jpg");
+    this.helipadTexture.setTextureWrap('REPEAT', 'REPEAT');
+    this.helipad = new MyPlane(scene, 10);  
 
 }
 
@@ -94,6 +103,15 @@ export class MyBuilding {
     this.signTexture.apply();  
     this.sign.display();
     this.scene.popMatrix();
+    // --- Draw Helipad ---     
+    this.scene.pushMatrix();
+    this.scene.translate(0, this.centralFloors * this.floorHeight + 0.01, -1.4);
+    this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+    this.scene.scale(2, 2, 1);
+    this.helipadTexture.apply();
+    this.helipad.display();
+    this.scene.popMatrix();
+
 
 }
 
