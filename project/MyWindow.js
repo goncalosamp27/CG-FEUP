@@ -24,7 +24,6 @@ export class MyWindow extends CGFobject {
 
   display() {
     this.scene.pushMatrix();
-    this.scene.scale(this.width, this.height, 1);
 
     this.appearance.apply();
 

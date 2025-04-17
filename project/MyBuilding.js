@@ -7,6 +7,7 @@ export class MyBuilding {
     this.scene = scene;
     this.totalWidth = totalWidth;
     this.numFloorsSide = numFloorsSide;
+    this.windowsperfloor = windowsperfloor;
     this.windowTexture = windowTexture;
     this.color = color; // Color for the walls
 
@@ -80,16 +81,16 @@ export class MyBuilding {
 
         // --- Draw Door ---
     this.scene.pushMatrix();
-    this.scene.translate(0, 0.5, 0.01);
-    this.scene.scale(0.8, 1.0, 1);
+    this.scene.translate(0, 0.4, 0.01);
+    this.scene.scale(0.8, 0.8, 1);
     this.doorTexture.apply();  
     this.door.display();
     this.scene.popMatrix();
 
     // --- Draw Sign ---
     this.scene.pushMatrix();
-    this.scene.translate(0, this.floorHeight*1.3, 0.01);
-    this.scene.scale(1.5, 0.5, 1);
+    this.scene.translate(0, this.floorHeight*0.9, 0.01);
+    this.scene.scale(1.5, 0.4, 1);
     this.signTexture.apply();  
     this.sign.display();
     this.scene.popMatrix();
@@ -169,18 +170,26 @@ export class MyBuilding {
 
      for (let floor = 0; floor < floors; floor++) {
         for (let i = 0; i < this.windowsperfloor; i++) {
+            if (center && floor === 0) continue;
             const xPos = xOffset - width / 2 + (i + 1) * (width / (this.windowsperfloor + 1));
-            const yPos = floor * this.floorHeight + this.floorHeight / 2;
+    
+            // Adjust yPos based on whether it's the central module
+            let yPos = (floor + 0.5) * this.floorHeight;  // Default calculation for yPos
+            
+            
     
             this.scene.pushMatrix();
-            this.scene.translate(xPos, yPos, 0.01); // Offset slightly forward so it’s on the wall
-            this.window.display();  // Just call it, it handles itself
+            this.scene.translate(xPos, yPos, 0.01); 
+            
+            this.scene.scale(0.5, 0.5, 1);  // Scale the window to the desired size
+    
+            this.window.display();  
             this.scene.popMatrix();
         }
     }
     
-
- 
+    
+    
   }
 
 }
