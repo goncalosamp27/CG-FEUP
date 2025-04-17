@@ -67,7 +67,7 @@ export class MyScene extends CGFscene {
     this.earthMaterial.loadTexture("textures/earth.jpg");
     this.earthMaterial.setTextureWrap('REPEAT', 'REPEAT');
 
-    const windowTexture = "textures/janela.png";
+    const windowTexture = "textures/window.png";
   
 
     this.helipadTexture = new CGFappearance(this);

@@ -1,5 +1,5 @@
 import { CGFobject, CGFappearance } from '../lib/CGF.js';
-import { MyQuad } from './MyQuad.js'; 
+import { MyPlane } from './MyPlane.js'; 
 
 export class MyWindow extends CGFobject {
   constructor(scene, width = 1, height = 1, texturePath = null) {
@@ -8,7 +8,7 @@ export class MyWindow extends CGFobject {
     this.width = width;
     this.height = height;
 
-    this.quad = new MyQuad(scene);
+    this.plane = new MyPlane(scene, 10); 
 
     this.appearance = new CGFappearance(scene);
     if (texturePath) {
@@ -24,12 +24,11 @@ export class MyWindow extends CGFobject {
 
   display() {
     this.scene.pushMatrix();
-    this.scene.scale(this.width, this.height, 1); 
+    this.scene.scale(this.width, this.height, 1);
 
     this.appearance.apply();
 
-    this.quad.display();
-
+    this.plane.display(); 
     this.scene.popMatrix();
   }
 }

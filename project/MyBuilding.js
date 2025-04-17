@@ -1,5 +1,6 @@
 import { MyPlane } from './MyPlane.js';  // Import the MyPlane class
 import { CGFobject, CGFappearance } from "../lib/CGF.js";
+import { MyWindow } from './MyWindow.js';  // Import the MyWindow class
 
 export class MyBuilding {
   constructor(scene, totalWidth, numFloorsSide,windowsperfloor, windowTexture, color) {
@@ -39,8 +40,10 @@ export class MyBuilding {
     this.doorTexture.loadTexture("textures/door.png");  // Assuming door texture exists
     this.doorTexture.setTextureWrap('REPEAT', 'REPEAT');
     this.door = new MyPlane(scene, 10);  // Create door object using MyPlane
- 
-  }
+
+    this.window = new MyWindow(scene, 1, 1, this.windowTexture);
+
+}
 
   initModules() {
     // Central module width (40% of totalWidth)
@@ -77,7 +80,7 @@ export class MyBuilding {
 
         // --- Draw Door ---
     this.scene.pushMatrix();
-    this.scene.translate(0, 0.5, 0.1);
+    this.scene.translate(0, 0.5, 0.01);
     this.scene.scale(0.8, 1.0, 1);
     this.doorTexture.apply();  
     this.door.display();
@@ -85,7 +88,7 @@ export class MyBuilding {
 
     // --- Draw Sign ---
     this.scene.pushMatrix();
-    this.scene.translate(0, this.floorHeight*1.3, 0.1);
+    this.scene.translate(0, this.floorHeight*1.3, 0.01);
     this.scene.scale(1.5, 0.5, 1);
     this.signTexture.apply();  
     this.sign.display();
@@ -163,21 +166,21 @@ export class MyBuilding {
      this.roof.display();  // Display the roof
      this.scene.popMatrix();
 
+
+     for (let floor = 0; floor < floors; floor++) {
+        for (let i = 0; i < this.windowsperfloor; i++) {
+            const xPos = xOffset - width / 2 + (i + 1) * (width / (this.windowsperfloor + 1));
+            const yPos = floor * this.floorHeight + this.floorHeight / 2;
+    
+            this.scene.pushMatrix();
+            this.scene.translate(xPos, yPos, 0.01); // Offset slightly forward so it’s on the wall
+            this.window.display();  // Just call it, it handles itself
+            this.scene.popMatrix();
+        }
+    }
+    
+
+ 
   }
 
-  displaySignAndDoor(xOffset, height, depth) {
-    // Display the door at the front of the building
-    this.scene.pushMatrix();
-    this.scene.translate(xOffset, height / 2, -depth / 2 + 0.1);  // Position door slightly in front
-    this.doorTexture.apply();  // Apply door texture
-    this.door.display();  // Display the door
-    this.scene.popMatrix();
-
-    // Display the sign above the door
-    this.scene.pushMatrix();
-    this.scene.translate(xOffset, height + 0.5, -depth / 2 + 0.1);  // Position the sign above the door
-    this.signTexture.apply();  // Apply sign texture
-    this.sign.display();  // Display the sign
-    this.scene.popMatrix();
-  }
 }
