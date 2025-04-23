@@ -3,6 +3,7 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
+import {MyBuilding} from "./MyBuilding.js"
 
 /**
  * MyScene
@@ -13,11 +14,11 @@ export class MyScene extends CGFscene {
     super();
   }
   init(application) {
-
     this.displayAxis = false;
-    this.displayPlane = false;
+    this.displayPlane = true;
     this.displayGlobe = false;
     this.displayPanorama = true;
+    this.displayBuilding = true;
 
     super.init(application);
     
@@ -63,7 +64,14 @@ export class MyScene extends CGFscene {
     this.earthMaterial.setShininess(10.0);
     this.earthMaterial.loadTexture("textures/earth.jpg");
     this.earthMaterial.setTextureWrap('REPEAT', 'REPEAT');
-  }
+
+    this.windowTexture = "textures/window.png";
+
+    this.numFloorsSide   = 3;
+    this.windowsPerFloor = 3;
+
+    this.buildBuilding();
+}
   
   initLights() {
     this.lights[0].setPosition(200, 200, 200, 1);
@@ -103,6 +111,20 @@ export class MyScene extends CGFscene {
     this.checkKeys();
 
     // this.zz += 0.1;
+  }
+
+  updateBuilding() {
+    this.buildBuilding();
+  }
+
+  buildBuilding() {
+    this.building = new MyBuilding(
+      this,
+      this.numFloorsSide,
+      this.windowsPerFloor,
+      this.windowTexture,
+      [0.82, 0.82, 0.82]
+    );
   }
 
   setDefaultAppearance() {
@@ -148,6 +170,12 @@ export class MyScene extends CGFscene {
       this.rotate(3 * Math.PI / 4, 0, 1, 0);
       this.earthMaterial.apply();
       this.sphere.display();
+      this.popMatrix();
+    }
+    if (this.displayBuilding) {
+      this.pushMatrix();
+      this.scale(5, 5, 5);  
+      this.building.display();
       this.popMatrix();
     }
   }

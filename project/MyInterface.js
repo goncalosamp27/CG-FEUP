@@ -21,6 +21,9 @@ export class MyInterface extends CGFinterface {
         this.gui.add(this.scene, 'displayPlane').name('Display Plane');
         this.gui.add(this.scene, 'displayGlobe').name('Display Globe');
         this.gui.add(this.scene, 'displayPanorama').name('Display Panorama');
+        this.gui.add(this.scene, 'displayBuilding').name("Display Building");
+        this.gui.add(this.scene, 'numFloorsSide', 1, 7, 1).name('Floors').onChange(() => this.scene.updateBuilding());
+        this.gui.add(this.scene, 'windowsPerFloor', 1, 7, 1).name('Windows').onChange(() => this.scene.updateBuilding());
 
         this.initKeys();
 
