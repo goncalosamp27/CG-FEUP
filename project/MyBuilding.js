@@ -51,8 +51,7 @@ export class MyBuilding {
     this.helipadTexture.loadTexture("textures/helipad.png");
     this.helipadTexture.setTextureWrap('REPEAT', 'REPEAT');
     this.helipad = new MyPlane(scene, 10);  
-
-}
+  }
 
   initModules() {
     this.centralWidth = this.totalWidth * 0.4;
@@ -106,7 +105,7 @@ export class MyBuilding {
     this.scene.translate(
       0,
       this.centralFloors * this.floorHeight + 0.01,
-      -helipadDepth / 1.33
+      -helipadDepth / 1.37
     );
     this.scene.rotate(-Math.PI / 2, 1, 0, 0);
     this.scene.scale(helipadWidth, helipadDepth, 1);
@@ -195,6 +194,7 @@ export class MyBuilding {
             this.scene.popMatrix();
         }
     }
+
     /*
     for (let floor = 0; floor < floors; floor++) {
       for (let i = 0; i < this.windowsperfloor; i++) {
@@ -223,6 +223,6 @@ export class MyBuilding {
         this.scene.popMatrix();
       }
     }
-      */
+    */
   }
 }
