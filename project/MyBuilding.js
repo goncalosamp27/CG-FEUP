@@ -195,7 +195,7 @@ export class MyBuilding {
             this.scene.popMatrix();
         }
     }
-
+    /*
     for (let floor = 0; floor < floors; floor++) {
       for (let i = 0; i < this.windowsperfloor; i++) {
         if (center && floor === 0) continue;
@@ -223,5 +223,6 @@ export class MyBuilding {
         this.scene.popMatrix();
       }
     }
+      */
   }
 }
