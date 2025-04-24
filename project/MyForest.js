@@ -20,11 +20,11 @@ export class MyForest extends CGFobject {
 				const leanAngle = Math.random() * 10; 
 				const leanAxis = Math.random() < 0.5 ? 'x' : 'z'; 
 
-
-				const baseGreen = 0.4 + Math.random() * 0.3; 
-				const red = 0.1 + Math.random() * 0.2;
-				const blue = 0.1 + Math.random() * 0.2;
-				const leafColor = [red, baseGreen, blue];
+				const rand = Math.random();
+				let id;
+				if (rand < 0.7) id = 0;          
+				else if (rand < 0.95) id = 1;     
+				else id = 2;                      
 
 				this.trees.push({
 					tree: new MyTree(scene, {
@@ -32,7 +32,7 @@ export class MyForest extends CGFobject {
 						trunkRadius,
 						leanAngle,
 						leanAxis,
-						leafColor
+						id
 					}),
 					x: j * this.spacing + offsetX,
 					z: i * this.spacing + offsetZ,
@@ -42,6 +42,15 @@ export class MyForest extends CGFobject {
 	}
 
 	display() {
+		const camX = this.scene.camera.position[0];
+		const camZ = this.scene.camera.position[2];
+		this.trees.sort((a, b) => {
+			const dA = (a.x - camX)**2 + (a.z - camZ)**2;
+			const dB = (b.x - camX)**2 + (b.z - camZ)**2;
+			return dB - dA; 
+		});
+
+	
 		for (let { tree, x, z } of this.trees) {
 			this.scene.pushMatrix();
 			this.scene.translate(x, 0, z);
@@ -49,4 +58,5 @@ export class MyForest extends CGFobject {
 			this.scene.popMatrix();
 		}
 	}
+	
 }
