@@ -4,8 +4,7 @@ import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
 import { MyBuilding } from "./MyBuilding.js"
-import { MyTree } from "./MyTree.js";
-
+import { MyForest } from "./MyForest.js";
 /**
  * MyScene
  * @constructor
@@ -19,7 +18,7 @@ export class MyScene extends CGFscene {
     this.displayPlane = true;
     this.displayGlobe = false;
     this.displayPanorama = false;
-    this.displayBuilding = false;
+    this.displayBuilding = true;
     this.displayForest = true;
 
     super.init(application);
@@ -73,8 +72,8 @@ export class MyScene extends CGFscene {
     this.windowsPerFloor = 3;
 
     this.buildBuilding();
-    this.tree = new MyTree(this, 3);
-}
+    this.forest = new MyForest(this);
+  }
   
   initLights() {
     this.lights[0].setPosition(200, 200, 200, 1);
@@ -184,8 +183,9 @@ export class MyScene extends CGFscene {
 
     if (this.displayForest) {
       this.pushMatrix();
-      this.scale(1, 1, 1);  
-      this.tree.display();
+      this.scale(1.3, 1.3, 1.3);  
+      this.translate(10, 0, 5);
+      this.forest.display();
       this.popMatrix();
     }
   }
