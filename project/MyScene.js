@@ -22,6 +22,7 @@ export class MyScene extends CGFscene {
     this.displayForest = true;
 
     super.init(application);
+    this.initTextures();
     
     // this.zz = 0;
     super.init(application);
@@ -124,9 +125,13 @@ export class MyScene extends CGFscene {
       this,
       this.numFloorsSide,
       this.windowsPerFloor,
-      this.windowTexture,
-      [0.82, 0.82, 0.82]
-    );
+      this.textures.window,
+      [0.82, 0.82, 0.82],
+      this.textures.wall,
+      this.textures.door,
+      this.textures.sign,
+      this.textures.helipad
+    );    
   }
 
   setDefaultAppearance() {
@@ -183,10 +188,85 @@ export class MyScene extends CGFscene {
 
     if (this.displayForest) {
       this.pushMatrix();
-      this.scale(1.3, 1.3, 1.3);  
+      this.scale(1.8, 1.8, 1.8);  
       this.translate(10, 0, 5);
       this.forest.display();
       this.popMatrix();
+    }
+  }
+
+  initTextures() {
+    this.textures = {
+        wall: new CGFappearance(this),
+        window: new CGFappearance(this),
+        door: new CGFappearance(this),
+        sign: new CGFappearance(this),
+        helipad: new CGFappearance(this)
+    };
+
+    this.textures.wall.setAmbient(0.7, 0.7, 0.7, 1);
+    this.textures.wall.setDiffuse(0.7, 0.7, 0.7, 1);
+    this.textures.wall.setSpecular(0.1, 0.1, 0.1, 1);
+    this.textures.wall.setShininess(10);
+
+    this.textures.helipad.setAmbient(0.7, 0.7, 0.7, 1);
+    this.textures.helipad.setDiffuse(0.7, 0.7, 0.7, 1);
+    this.textures.helipad.setSpecular(0.1, 0.1, 0.1, 1);
+    this.textures.helipad.setShininess(10);
+
+    this.textures.sign.setAmbient(0.7, 0.7, 0.7, 1);
+    this.textures.sign.setDiffuse(0.7, 0.7, 0.7, 1);
+    this.textures.sign.setSpecular(0.1, 0.1, 0.1, 1);
+    this.textures.sign.setShininess(10);
+
+    this.textures.window.setAmbient(0.5, 0.5, 0.5, 1);
+    this.textures.window.setDiffuse(0.8, 0.8, 0.8, 0.5); 
+    this.textures.window.setSpecular(1.0, 1.0, 1.0, 0.5); 
+    this.textures.window.setShininess(10);
+
+    this.textures.door.setAmbient(0.5, 0.5, 0.5, 1);
+    this.textures.door.setDiffuse(0.8, 0.8, 0.8, 0.5); 
+    this.textures.door.setSpecular(1.0, 1.0, 1.0, 0.5); 
+    this.textures.door.setShininess(10);
+    
+    this.textures.window.loadTexture("textures/window.png");
+    this.textures.door.loadTexture("textures/door.png");
+    this.textures.sign.loadTexture("textures/sign.png");
+    this.textures.helipad.loadTexture("textures/helipad.png");
+    this.textures.wall.loadTexture("textures/quartz.png");
+
+    for (let key in this.textures) {
+        this.textures[key].setTextureWrap('REPEAT', 'REPEAT');
+    }
+
+    this.treeTextures = [
+      {wood: new CGFappearance(this),leaves: new CGFappearance(this)},
+      {wood: new CGFappearance(this),leaves: new CGFappearance(this)},
+      {wood: new CGFappearance(this),leaves: new CGFappearance(this)}
+    ];
+    
+    const texturePaths = [
+      { wood: 'textures/wood1.png', leaves: 'textures/leaves1.png' },
+      { wood: 'textures/wood2.png', leaves: 'textures/leaves2.png' },
+      { wood: 'textures/wood3.png', leaves: 'textures/leaves3.png' }
+    ];
+    
+    for (let i = 0; i < 3; i++) {
+      const woodMat = this.treeTextures[i].wood;
+      woodMat.setAmbient(1, 1, 1, 1);
+      woodMat.setDiffuse(1, 1, 1, 1);
+      woodMat.setSpecular(0.1, 0.1, 0.1, 1);
+      woodMat.setShininess(10.0);
+      woodMat.loadTexture(texturePaths[i].wood);
+      woodMat.setTextureWrap('REPEAT', 'REPEAT');
+    
+      const leafMat = this.treeTextures[i].leaves;
+      leafMat.setAmbient(1, 1, 1, 1);
+      leafMat.setDiffuse(1, 1, 1, 1);
+      leafMat.setSpecular(0.1, 0.1, 0.1, 1);
+      leafMat.setShininess(10.0);
+      leafMat.loadTexture(texturePaths[i].leaves);
+      leafMat.setTextureWrap('REPEAT', 'REPEAT');
     }
   }
 }

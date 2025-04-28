@@ -72,6 +72,16 @@ export class MyPlane extends CGFobject {
 		this.texCoords = [...coords];
 		this.updateTexCoordsGLBuffers();
 	}
+
+	updateTexCoordsAmplify(ampS, ampT) {
+		this.texCoords = [];
+		for (let j = 0; j <= this.nrDivs; j++) {
+			for (let i = 0; i <= this.nrDivs; i++) {
+				this.texCoords.push((this.minS + i * this.q) * ampS, (this.minT + j * this.w) * ampT);
+			}
+		}
+		this.updateTexCoordsGLBuffers();
+	}	
 }
 
 

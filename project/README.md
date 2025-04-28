@@ -8,9 +8,9 @@
 
 ![Screenshot 1](screenshots/project-t03-g10-1.png)
 Figura 1: Panorama (1ª perspetiva)
-![Screenshot 2](screenshots/project-t03-g10-2.png)
-Figura 2: Panorama (2ª perspetiva)
+![Screenshot 2](screenshots/project-t03-g10-1b.png)
+Figura 1b: Panorama (2ª perspetiva)
 
 ### MyBuilding
-![Screenshot 3](screenshots/project-t03-g10-3.png)
-Figura 3: Edifício dos Bombeiros
+![Screenshot 3](screenshots/project-t03-g10-2.png)
+Figura 2: Edifício dos Bombeiros

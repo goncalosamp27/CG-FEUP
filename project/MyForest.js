@@ -24,7 +24,16 @@ export class MyForest extends CGFobject {
 				let id;
 				if (rand < 0.7) id = 0;          
 				else if (rand < 0.95) id = 1;     
-				else id = 2;                      
+				else id = 2;   
+				
+				let baseColor;
+				if (id === 0) baseColor = [0.9, 0.9, 0.9];     
+				else if (id === 1) baseColor = [0.6, 0.8, 0.6]; 
+				else baseColor = [0.7, 0.4, 0.1];
+				
+				let leafColor = this.varyColor(baseColor, 0.1);
+
+				const textures = this.scene.treeTextures[id];
 
 				this.trees.push({
 					tree: new MyTree(scene, {
@@ -32,7 +41,9 @@ export class MyForest extends CGFobject {
 						trunkRadius,
 						leanAngle,
 						leanAxis,
-						id
+						leafColor,
+						trunkMaterial: textures.wood,
+						leafMaterial: textures.leaves
 					}),
 					x: j * this.spacing + offsetX,
 					z: i * this.spacing + offsetZ,
@@ -58,5 +69,12 @@ export class MyForest extends CGFobject {
 			this.scene.popMatrix();
 		}
 	}
-	
+
+	varyColor(baseColor, jitter = 0.1) {
+		return baseColor.map(c => {
+		  let variation = (Math.random() - 0.5) * 2 * jitter; 
+		  let value = c + variation;
+		  return Math.min(1.0, Math.max(0.0, value)); 
+		});
+	  }
 }
