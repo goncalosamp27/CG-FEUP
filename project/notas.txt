@@ -1,0 +1,5 @@
+Adicionar sombras nas arvores: 
+	- Modificar texturas das copas, sem ser as de topo;
+	- Adicionar texturas radiais, escuras, na base de cada arvore para simular a sombra da arvore;
+
+

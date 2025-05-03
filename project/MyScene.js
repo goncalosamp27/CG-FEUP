@@ -17,7 +17,7 @@ export class MyScene extends CGFscene {
     this.displayAxis = false;
     this.displayPlane = true;
     this.displayGlobe = false;
-    this.displayPanorama = false;
+    this.displayPanorama = true;
     this.displayBuilding = true;
     this.displayForest = true;
 
@@ -39,7 +39,7 @@ export class MyScene extends CGFscene {
     this.setUpdatePeriod(50);
 
     this.axis = new CGFaxis(this, 20, 1);
-    this.plane = new MyPlane(this, 64, 0, 10, 0, 10);
+    this.plane = new MyPlane(this, 64, 0, 20, 0, 20);
     this.sphere = new MySphere(this, 10, 50, 50);
 
     const panoramaTexture = new CGFappearance(this);
@@ -54,12 +54,12 @@ export class MyScene extends CGFscene {
     this.panorama = new MyPanorama(this, panoramaTexture);
 
     this.grassMaterial = new CGFappearance(this);
-    this.grassMaterial.setAmbient(0.1, 0.1, 0.1, 1);
-    this.grassMaterial.setDiffuse(0.9, 0.9, 0.9, 1);
+    this.grassMaterial.setAmbient(1, 1, 1, 1);
+    this.grassMaterial.setDiffuse(1, 1, 1, 1);
     this.grassMaterial.setSpecular(0.1, 0.1, 0.1, 1);
     this.grassMaterial.setShininess(10.0);
-    this.grassMaterial.loadTexture("textures/grass.jpg");
-    this.grassMaterial.setTextureWrap('REPEAT', 'REPEAT');
+    this.grassMaterial.loadTexture("textures/grass.png");
+    this.grassMaterial.setTextureWrap('MIRRORED_REPEAT', 'MIRRORED_REPEAT');
 
     this.earthMaterial = new CGFappearance(this);
     this.earthMaterial.setAmbient(2.5, 2.5, 2.5, 1);
@@ -188,8 +188,8 @@ export class MyScene extends CGFscene {
 
     if (this.displayForest) {
       this.pushMatrix();
-      this.scale(1.8, 1.8, 1.8);  
-      this.translate(10, 0, 5);
+      this.scale(2.5, 2.5, 2.5);  
+      this.translate(10, 0, 3);
       this.forest.display();
       this.popMatrix();
     }
