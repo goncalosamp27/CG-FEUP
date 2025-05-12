@@ -5,6 +5,7 @@ import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
 import { MyBuilding } from "./MyBuilding.js"
 import { MyForest } from "./MyForest.js";
+import { MyHeli } from "./MyHeli.js";
 /**
  * MyScene
  * @constructor
@@ -20,9 +21,11 @@ export class MyScene extends CGFscene {
     this.displayPanorama = true;
     this.displayBuilding = true;
     this.displayForest = true;
+    this.displayHeli = true;
 
     super.init(application);
     this.initTextures();
+    this.initHeliTextures();
     
     // this.zz = 0;
     super.init(application);
@@ -74,6 +77,8 @@ export class MyScene extends CGFscene {
 
     this.buildBuilding();
     this.forest = new MyForest(this);
+
+    this.heli = new MyHeli(this, this.heliTextures);
   }
   
   initLights() {
@@ -88,7 +93,7 @@ export class MyScene extends CGFscene {
       Math.PI / 2, 
       0.1,
       1000,
-      vec3.fromValues(20, 20, 20),
+      vec3.fromValues(-25, 10, 40),
       vec3.fromValues(0, 0, 0)
     );
   }
@@ -193,6 +198,27 @@ export class MyScene extends CGFscene {
       this.forest.display();
       this.popMatrix();
     }
+
+    if (this.displayHeli) {
+      this.pushMatrix();
+    
+      const scale = 5;
+      const heightPerFloor = 1; 
+      const buildingHeight = (this.numFloorsSide + 1) * heightPerFloor;
+    
+      const unitSize = 1; 
+      const buildingCenterX = ((this.windowsPerFloor-3) * unitSize * scale) / 2;
+
+      if (this.displayBuilding)
+        this.translate(0, buildingHeight * scale + 5.6, -12 -buildingCenterX);
+      else
+        this.translate(0, 5.7, -12);
+
+      this.scale(0.6, 0.6, 0.6);
+      this.heli.display();
+    
+      this.popMatrix();
+    }
   }
 
   initTextures() {
@@ -269,4 +295,50 @@ export class MyScene extends CGFscene {
       leafMat.setTextureWrap('REPEAT', 'REPEAT');
     }
   }
+
+  initHeliTextures() {
+    this.heliTextures = {
+      body: new CGFappearance(this),
+      body2: new CGFappearance(this),
+      cockpit: new CGFappearance(this),
+      blade: new CGFappearance(this),
+      black: new CGFappearance(this),
+    };
+  
+    this.heliTextures.body.setAmbient(0.8, 0.8, 0.8, 1);
+    this.heliTextures.body.setDiffuse(0.5, 0.5, 0.5, 1);
+    this.heliTextures.body.setSpecular(0.9, 0.9, 0.9, 1);
+    this.heliTextures.body.setShininess(100);
+    this.heliTextures.body.loadTexture("textures/bodyTexture.png");
+    this.heliTextures.body.setTextureWrap("REPEAT", "REPEAT");
+
+    this.heliTextures.body2.setAmbient(0.8, 0.8, 0.8, 1);
+    this.heliTextures.body2.setDiffuse(0.5, 0.5, 0.5, 1);
+    this.heliTextures.body2.setSpecular(0.9, 0.9, 0.9, 1);
+    this.heliTextures.body2.setShininess(100);
+    this.heliTextures.body2.loadTexture("textures/heli_top.png");
+    this.heliTextures.body2.setTextureWrap("REPEAT", "REPEAT");
+  
+    this.heliTextures.body2.setAmbient(0.3, 0.3, 0.3, 1);
+    this.heliTextures.body2.setDiffuse(0.5, 0.5, 0.5, 1);
+    this.heliTextures.body2.setSpecular(0.9, 0.9, 0.9, 1);
+    this.heliTextures.cockpit.setShininess(100);
+    this.heliTextures.cockpit.loadTexture("textures/window2.png");
+    this.heliTextures.cockpit.setTextureWrap("CLAMP_TO_EDGE", "CLAMP_TO_EDGE");
+  
+    this.heliTextures.blade.setAmbient(0.6, 0.6, 0.6, 1);
+    this.heliTextures.blade.setDiffuse(1, 1, 1, 1);
+    this.heliTextures.blade.setSpecular(0.6, 0.6, 0.6, 1);
+    this.heliTextures.blade.setShininess(200);
+    this.heliTextures.blade.loadTexture("textures/iron.jpg");
+    this.heliTextures.blade.setTextureWrap("REPEAT", "REPEAT");
+  
+    this.heliTextures.black.setAmbient(0.3, 0.3, 0.3, 1);
+    this.heliTextures.black.setDiffuse(0.6, 0.6, 0.6, 1);
+    this.heliTextures.black.setSpecular(0.9, 0.9, 0.9, 1);
+    this.heliTextures.black.setShininess(90);
+    this.heliTextures.black.loadTexture("textures/heli_bottom.png");
+    this.heliTextures.black.setTextureWrap("REPEAT", "REPEAT");
+  }
+  
 }

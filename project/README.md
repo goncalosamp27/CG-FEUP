@@ -17,4 +17,8 @@ Figura 2: Edifício dos Bombeiros
 
 ### MyForest
 ![Screenshot 4](screenshots/project-t03-g10-3.png)
-Figura 2: Floresta
+Figura 3: Floresta
+
+### MyHeli
+![Screenshot 5](screenshots/project-t03-g10-4.png)
+Figura 4: Helicóptero

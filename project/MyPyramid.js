@@ -37,10 +37,15 @@ export class MyPyramid extends CGFobject {
             const nsize = Math.sqrt(normal[0]**2 + normal[1]**2 + normal[2]**2);
             normal[0] /= nsize; normal[1] /= nsize; normal[2] /= nsize;
             this.normals.push(...normal, ...normal, ...normal);
+            const uStart = 0.0;
+            const uEnd = 0.5;
+            const vStart = 0.5;
+            const vEnd = 1.0;
 
-            this.texCoords.push(0.5, 0);
-            this.texCoords.push(0, 1);   
-            this.texCoords.push(1, 1); 
+            this.texCoords.push((uStart + uEnd) / 2, vStart); // topo da pirâmide (centro da parte de cima da célula)
+            this.texCoords.push(uStart, vEnd);               // base esquerda (canto inferior esquerdo da célula)
+            this.texCoords.push(uEnd, vEnd);                 // base direita (canto inferior direito da célula)
+
 
             this.indices.push(3 * i, 3 * i + 1, 3 * i + 2);
 
