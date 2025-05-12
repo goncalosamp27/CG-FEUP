@@ -22,3 +22,7 @@ Figura 3: Floresta
 ### MyHeli
 ![Screenshot 5](screenshots/project-t03-g10-4.png)
 Figura 4: Helicóptero
+
+### MyHeli
+![Gif 1](screenshots/project-t03-g10-5.gif)
+Figura 5: Animação de voo do Helicóptero

@@ -22,6 +22,8 @@ export class MyScene extends CGFscene {
     this.displayBuilding = true;
     this.displayForest = true;
     this.displayHeli = true;
+    this.speedFactor = 1;
+    this.cruiseAltitude = 15;
 
     super.init(application);
     this.initTextures();
@@ -78,7 +80,7 @@ export class MyScene extends CGFscene {
     this.buildBuilding();
     this.forest = new MyForest(this);
 
-    this.heli = new MyHeli(this, this.heliTextures);
+    this.heli = new MyHeli(this, this.heliTextures, this.cruiseAltitude);
   }
   
   initLights() {
@@ -98,27 +100,87 @@ export class MyScene extends CGFscene {
     );
   }
   checkKeys() {
-    var text = "Keys pressed: ";
-    var keysPressed = false;
+    const heli = this.heli;
 
-    // Check for key codes e.g. in https://keycode.info/
-    if (this.gui.isKeyPressed("KeyW")) {
-      text += " W ";
-      keysPressed = true;
+    if (this.gui.isKeyPressed("KeyR")) {
+      heli.position = { ...heli.initialPosition };
+      heli.velocity = 0;
+      heli.state = "landed";
+      heli.orientation = 0;
+      heli.roll = 0;
+      heli.pitch = 0;
+      heli.bladeRotation = 0;
+      heli.bladeRotationSpeed = 0;
+      heli.tailBladeRotation = 0;
+      heli.tailBladeSpeed = 0;
+      heli.tailBladeTargetSpeed = 0;
+      heli.hoverTime = 0;
+      heli.hoverActive = false;
+      console.log("Helicopter reset");
+    }    
+
+    if (this.gui.isKeyPressed("KeyL")) {
+      if (heli.state === "flying" && !heli.isReturning) {
+        console.log("Returning to helipad");
+        heli.initiateLandingSequence();
+      }
+    }
+  
+    if (this.gui.isKeyPressed("KeyP")) {
+      if (heli.state === "landed") {
+        heli.state = "taking_off";
+        heli.velocity = 0; 
+        console.log("Helicopter taking off");
+      }
     }
 
-    if (this.gui.isKeyPressed("KeyS")) {
-      text += " S ";
-      keysPressed = true;
+    if (heli.state === "flying") {
+      if (this.gui.isKeyPressed("KeyW")) {
+        heli.accelerate(2 * this.speedFactor);
+        heli.targetPitch = -heli.maxPitch; 
+      } 
+      else if (this.gui.isKeyPressed("KeyS")) {
+        heli.accelerate(-3 * this.speedFactor);
+        heli.targetPitch = heli.maxPitch;
+      } 
+      else {
+        heli.targetPitch = 0; 
+        // heli.velocity = 0;
+      }
+
+      if (this.gui.isKeyPressed("KeyA")) {
+        heli.turn(0.05); 
+        heli.targetRoll = heli.maxRoll;
+        heli.tailBladeTargetSpeed = -heli.tailBladeMaxSpeed;
+        console.log("Helicopter Left");
+      }
+      else if (this.gui.isKeyPressed("KeyD")) {
+        heli.turn(-0.05); 
+        heli.targetRoll = heli.maxRoll;
+        heli.tailBladeTargetSpeed = +heli.tailBladeMaxSpeed;
+        console.log("Helicopter Right");
+      } 
+      else {
+        heli.targetRoll = 0;
+        heli.tailBladeSpeed = 0;
+      }
+
+      if (this.gui.isKeyPressed("Space")) {
+        heli.position.y += 0.5 * this.speedFactor;
+        heli.targetPitch = -heli.maxPitch; 
+
+      }
+      if (this.gui.isKeyPressed("ShiftLeft")) {
+        heli.position.y -= 0.5 * this.speedFactor;
+        heli.targetPitch = heli.maxPitch; 
+        if (heli.position.y < 0) heli.position.y = 0;
+      }
     }
-    if (keysPressed)
-      console.log(text);
   }
-
+  
   update(t) {
     this.checkKeys();
-
-    // this.zz += 0.1;
+    this.heli.update(t);
   }
 
   updateBuilding() {
