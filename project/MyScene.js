@@ -1,11 +1,12 @@
 
-import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
+import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFshader, CGFtexture } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
 import { MyBuilding } from "./MyBuilding.js"
 import { MyForest } from "./MyForest.js";
 import { MyHeli } from "./MyHeli.js";
+import { MyLake } from "./MyLake.js";
 /**
  * MyScene
  * @constructor
@@ -22,6 +23,7 @@ export class MyScene extends CGFscene {
     this.displayBuilding = true;
     this.displayForest = true;
     this.displayHeli = true;
+    this.displayLake = true;
     this.speedFactor = 1;
     this.cruiseAltitude = 15;
 
@@ -81,6 +83,20 @@ export class MyScene extends CGFscene {
     this.forest = new MyForest(this);
 
     this.heli = new MyHeli(this, this.heliTextures, this.cruiseAltitude);
+
+    this.waterMaterial = new CGFappearance(this);
+    this.waterMaterial.setAmbient(0.4, 0.6, 1.0, 0.8);  
+    this.waterMaterial.setDiffuse(0.4, 0.6, 1.0, 0.8);
+    this.waterMaterial.setSpecular(0.5, 0.5, 0.5, 0.8); 
+    this.waterMaterial.loadTexture("textures/waterTex.jpg");
+    this.waterMaterial.setTextureWrap("REPEAT", "REPEAT");
+
+    this.waterShader = new CGFshader(this.gl, "shaders/water.vert", "shaders/water.frag");
+    this.waterShader.setUniformsValues({ uSampler2: 2, timeFactor: 0 });
+
+    this.waterMapTexture = new CGFtexture(this, "textures/waterMap.jpg");
+
+    this.lake = new MyLake(this, 10, 0.1);
   }
   
   initLights() {
@@ -101,79 +117,80 @@ export class MyScene extends CGFscene {
   }
   checkKeys() {
     const heli = this.heli;
-
-    if (this.gui.isKeyPressed("KeyR")) {
-      heli.position = { ...heli.initialPosition };
-      heli.velocity = 0;
-      heli.state = "landed";
-      heli.orientation = 0;
-      heli.roll = 0;
-      heli.pitch = 0;
-      heli.bladeRotation = 0;
-      heli.bladeRotationSpeed = 0;
-      heli.tailBladeRotation = 0;
-      heli.tailBladeSpeed = 0;
-      heli.tailBladeTargetSpeed = 0;
-      heli.hoverTime = 0;
-      heli.hoverActive = false;
-      console.log("Helicopter reset");
-    }    
-
-    if (this.gui.isKeyPressed("KeyL")) {
-      if (heli.state === "flying" && !heli.isReturning) {
-        console.log("Returning to helipad");
-        heli.initiateLandingSequence();
-      }
-    }
-  
-    if (this.gui.isKeyPressed("KeyP")) {
-      if (heli.state === "landed") {
-        heli.state = "taking_off";
-        heli.velocity = 0; 
-        console.log("Helicopter taking off");
-      }
-    }
-
-    if (heli.state === "flying") {
-      if (this.gui.isKeyPressed("KeyW")) {
-        heli.accelerate(2 * this.speedFactor);
-        heli.targetPitch = -heli.maxPitch; 
-      } 
-      else if (this.gui.isKeyPressed("KeyS")) {
-        heli.accelerate(-3 * this.speedFactor);
-        heli.targetPitch = heli.maxPitch;
-      } 
-      else {
-        heli.targetPitch = 0; 
-        // heli.velocity = 0;
-      }
-
-      if (this.gui.isKeyPressed("KeyA")) {
-        heli.turn(0.05); 
-        heli.targetRoll = heli.maxRoll;
-        heli.tailBladeTargetSpeed = -heli.tailBladeMaxSpeed;
-        console.log("Helicopter Left");
-      }
-      else if (this.gui.isKeyPressed("KeyD")) {
-        heli.turn(-0.05); 
-        heli.targetRoll = heli.maxRoll;
-        heli.tailBladeTargetSpeed = +heli.tailBladeMaxSpeed;
-        console.log("Helicopter Right");
-      } 
-      else {
-        heli.targetRoll = 0;
+    if(this.displayHeli) {
+      if (this.gui.isKeyPressed("KeyR")) {
+        heli.position = { ...heli.initialPosition };
+        heli.velocity = 0;
+        heli.state = "landed";
+        heli.orientation = 0;
+        heli.roll = 0;
+        heli.pitch = 0;
+        heli.bladeRotation = 0;
+        heli.bladeRotationSpeed = 0;
+        heli.tailBladeRotation = 0;
         heli.tailBladeSpeed = 0;
+        heli.tailBladeTargetSpeed = 0;
+        heli.hoverTime = 0;
+        heli.hoverActive = false;
+        console.log("Helicopter reset");
+      }    
+
+      if (this.gui.isKeyPressed("KeyL")) {
+        if (heli.state === "flying" && !heli.isReturning) {
+          console.log("Returning to helipad");
+          heli.initiateLandingSequence();
+        }
+      }
+    
+      if (this.gui.isKeyPressed("KeyP")) {
+        if (heli.state === "landed") {
+          heli.state = "taking_off";
+          heli.velocity = 0; 
+          console.log("Helicopter taking off");
+        }
       }
 
-      if (this.gui.isKeyPressed("Space")) {
-        heli.position.y += 0.5 * this.speedFactor;
-        heli.targetPitch = -heli.maxPitch; 
+      if (heli.state === "flying") {
+        if (this.gui.isKeyPressed("KeyW")) {
+          heli.accelerate(2 * this.speedFactor);
+          heli.targetPitch = -heli.maxPitch; 
+        } 
+        else if (this.gui.isKeyPressed("KeyS")) {
+          heli.accelerate(-3 * this.speedFactor);
+          heli.targetPitch = heli.maxPitch;
+        } 
+        else {
+          heli.targetPitch = 0; 
+          // heli.velocity = 0;
+        }
 
-      }
-      if (this.gui.isKeyPressed("ShiftLeft")) {
-        heli.position.y -= 0.5 * this.speedFactor;
-        heli.targetPitch = heli.maxPitch; 
-        if (heli.position.y < 0) heli.position.y = 0;
+        if (this.gui.isKeyPressed("KeyA")) {
+          heli.turn(0.05); 
+          heli.targetRoll = heli.maxRoll;
+          heli.tailBladeTargetSpeed = -heli.tailBladeMaxSpeed;
+          console.log("Helicopter Left");
+        }
+        else if (this.gui.isKeyPressed("KeyD")) {
+          heli.turn(-0.05); 
+          heli.targetRoll = heli.maxRoll;
+          heli.tailBladeTargetSpeed = +heli.tailBladeMaxSpeed;
+          console.log("Helicopter Right");
+        } 
+        else {
+          heli.targetRoll = 0;
+          heli.tailBladeSpeed = 0;
+        }
+
+        if (this.gui.isKeyPressed("Space")) {
+          heli.position.y += 0.5 * this.speedFactor;
+          heli.targetPitch = -heli.maxPitch; 
+
+        }
+        if (this.gui.isKeyPressed("ShiftLeft")) {
+          heli.position.y -= 0.5 * this.speedFactor;
+          heli.targetPitch = heli.maxPitch; 
+          if (heli.position.y < 0) heli.position.y = 0;
+        }
       }
     }
   }
@@ -279,6 +296,15 @@ export class MyScene extends CGFscene {
       this.scale(0.6, 0.6, 0.6);
       this.heli.display();
     
+      this.popMatrix();
+    }
+    if (this.displayLake) {
+      this.pushMatrix();
+      this.translate(-20, -0.09, 20);
+      this.waterMaterial.apply();
+      this.lake.display();
+
+      this.setActiveShader(this.defaultShader);
       this.popMatrix();
     }
   }
@@ -402,5 +428,4 @@ export class MyScene extends CGFscene {
     this.heliTextures.black.loadTexture("textures/heli_bottom.png");
     this.heliTextures.black.setTextureWrap("REPEAT", "REPEAT");
   }
-  
 }

@@ -1,4 +1,4 @@
-import { CGFobject, CGFappearance } from '../lib/CGF.js';
+import { CGFobject } from '../lib/CGF.js';
 import { MyFrustum } from './MyFrustum.js';
 import { MyPrism } from './MyPrism.js';
 import { MyBlade } from './MyBlade.js';
@@ -378,7 +378,7 @@ export class MyHeli extends CGFobject {
     }
 
     if (this.state === "landed" && (this.bladeRotationSpeed > 0 || this.tailBladeSpeed > 0)) {
-      const deceleration = 4 * delta;
+      const deceleration = 3 * delta;
       this.bladeRotationSpeed = Math.max(0, this.bladeRotationSpeed - deceleration);
       this.tailBladeSpeed = Math.max(0, this.tailBladeSpeed - deceleration);
     }
@@ -395,3 +395,4 @@ export class MyHeli extends CGFobject {
     this.cruiseAltitude = Math.max(10, Math.min(50, value));
   }  
 }
+
