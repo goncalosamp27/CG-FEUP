@@ -28,9 +28,28 @@ export class MyHeli extends CGFobject {
     this.blade = new MyBlade(this.scene);
     this.miniblade = new MyBlade(this.scene, 1.5, 0.5, 0.05, 3);
 
+    this.position = { x: 0, y: 0, z: 0 };
+    this.state = "landed"; // "landed", "taking_off", "flying", "landing"
+    this.cruiseAltitude = 20;
+    this.velocity = 0;
+    this.orientation = 0; 
+
+    this.bladeRotation = 0;
+    this.bladeRotationSpeed = 0;
+    this.maxBladeSpeed = 10; // podes ajustar este valor
+
+    this.roll = 0; // Inclinação atual
+    this.targetRoll = 0; // Inclinação desejada
+    this.maxRoll = 0.2; // Máxima inclinação (ajustável)
+    this.rollSpeed = 2; 
   }
 
   display() {
+    this.scene.pushMatrix();
+    this.scene.translate(this.position.x, this.position.y, this.position.z);
+    this.scene.rotate(this.roll, 0, 0, 1); 
+    this.scene.rotate(this.orientation, 0, 1, 0);
+
     this.scene.pushMatrix();
     this.textures.body.apply();
     this.body.display();
@@ -161,17 +180,19 @@ export class MyHeli extends CGFobject {
 
     this.scene.popMatrix();
 
+    // HELICES Grandes
     this.scene.pushMatrix();
-    this.scene.translate(0,9,3);
+    this.scene.translate(0, 9, 3);
+    this.scene.rotate(this.bladeRotation, 0, 1, 0); // aplica a rotação animada
 
-    // HELICES GRANDES
     for (let i = 0; i < 3; i++) {
-        this.scene.pushMatrix();
-        this.scene.rotate(i * 2 * Math.PI / 3, 0, 1, 0);
-        this.textures.blade.apply();
-        this.blade.display();
-        this.scene.popMatrix();
-      }
+      this.scene.pushMatrix();
+      this.scene.rotate(i * 2 * Math.PI / 3, 0, 1, 0);
+      this.textures.blade.apply();
+      this.blade.display();
+      this.scene.popMatrix();
+    }
+
     this.scene.popMatrix();
     
     // HELICES PEQUENAS
@@ -187,5 +208,55 @@ export class MyHeli extends CGFobject {
         this.scene.popMatrix();
     }
     this.scene.popMatrix();
+
+    this.scene.popMatrix();
+  }
+
+  turn(v) {
+    this.orientation += v;
+  
+    this.direction = {
+      x: Math.sin(this.orientation),
+      z: Math.cos(this.orientation),
+    };
+  
+    this.targetRoll = v > 0 ? this.maxRoll : -this.maxRoll;
+  }
+
+  update(t) {
+    if (this.lastUpdateTime === undefined) {
+      this.lastUpdateTime = t;
+      return;
+    }
+  
+    const delta = (t - this.lastUpdateTime) / 1000;
+    this.lastUpdateTime = t;
+  
+    if (this.state === "taking_off") {
+      if (this.bladeRotationSpeed < this.maxBladeSpeed) {
+        this.bladeRotationSpeed += 2 * delta; 
+      }
+  
+      this.position.y += 2 * delta;
+  
+      if (this.position.y >= this.cruiseAltitude) {
+        this.position.y = this.cruiseAltitude;
+        this.state = "flying";
+        this.bladeRotationSpeed = this.maxBladeSpeed;
+      }
+    }
+
+    if (this.state === "flying") {
+      if (this.turningLeft) {
+
+        this.scene.rotate(0.15, 0, 0, 1); // inclina para a esquerda
+      } 
+      else if (this.turningRight) {
+        this.scene.rotate(-0.15, 0, 0, 1); // inclina para a direita
+      }
+    }    
+
+    this.roll += (this.targetRoll - this.roll) * this.rollSpeed * delta;
+    this.bladeRotation += this.bladeRotationSpeed * delta;
   }
 }

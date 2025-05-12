@@ -22,6 +22,7 @@ export class MyScene extends CGFscene {
     this.displayBuilding = true;
     this.displayForest = true;
     this.displayHeli = true;
+    this.speedFactor = 1;
 
     super.init(application);
     this.initTextures();
@@ -98,27 +99,34 @@ export class MyScene extends CGFscene {
     );
   }
   checkKeys() {
-    var text = "Keys pressed: ";
-    var keysPressed = false;
-
-    // Check for key codes e.g. in https://keycode.info/
-    if (this.gui.isKeyPressed("KeyW")) {
-      text += " W ";
-      keysPressed = true;
+    const heli = this.heli;
+  
+    if (this.gui.isKeyPressed("KeyT")) {
+      if (heli.state === "landed") {
+        heli.state = "taking_off";
+        heli.velocity = 0; 
+        console.log("Helicopter taking off");
+      }
     }
 
-    if (this.gui.isKeyPressed("KeyS")) {
-      text += " S ";
-      keysPressed = true;
+    if (heli.state === "flying") {
+      if (this.gui.isKeyPressed("KeyA")) {
+        heli.turn(0.05); 
+        console.log("Helicopter Left");
+      }
+      else if (this.gui.isKeyPressed("KeyD")) {
+        heli.turn(-0.05); 
+        console.log("Helicopter Right");
+      } 
+      else {
+        heli.targetRoll = 0;
+      }
     }
-    if (keysPressed)
-      console.log(text);
   }
-
+  
   update(t) {
     this.checkKeys();
-
-    // this.zz += 0.1;
+    this.heli.update(t);
   }
 
   updateBuilding() {
