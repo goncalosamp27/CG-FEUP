@@ -104,6 +104,9 @@ export class MyScene extends CGFscene {
     this.lakeTX = -30;
     this.lakeTZ = 15;
     this.lake = new MyLake(this, this.lakeRadius, 0.1);
+
+    this.forestTX = 25;
+    this.forestTZ = 7;
   }
   
   initLights() {
@@ -122,94 +125,7 @@ export class MyScene extends CGFscene {
       vec3.fromValues(0, 0, 0)
     );
   }
-  checkKeys() {
-    const heli = this.heli;
-    if(this.displayHeli) {
-      if (this.gui.isKeyPressed("KeyR")) {
-        heli.position = { ...heli.initialPosition };
-        heli.velocity = 0;
-        heli.state = "landed";
-        heli.orientation = 0;
-        heli.roll = 0;
-        heli.pitch = 0;
-        heli.bladeRotation = 0;
-        heli.bladeRotationSpeed = 0;
-        heli.tailBladeRotation = 0;
-        heli.tailBladeSpeed = 0;
-        heli.tailBladeTargetSpeed = 0;
-        heli.hoverTime = 0;
-        heli.hoverActive = false;
-        console.log("Helicopter reset");
-      } 
-      
-      const worldPos = this.getHeliWorldPosition();
-
-      if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL")) {
-        if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z)) {
-          console.log("TAMOS NO LAGO");
-        } 
-        else {
-          console.log("Returning to helipad");
-          heli.isReturningToBase = true;
-          heli.initiateLandingSequence();
-        }
-      }
-    
-      if (this.gui.isKeyPressed("KeyP")) {
-        if (heli.state === "landed") {
-          heli.state = "taking_off";
-          heli.velocity = 0; 
-          console.log("Helicopter taking off");
-        }
-
-        if(this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z)) {
-          /* FAZER O HELICOPTERO ENCHER O BALDE */
-        }
-      }
-
-      if (heli.state === "flying") {
-        if (this.gui.isKeyPressed("KeyW")) {
-          heli.accelerate(2 * this.speedFactor);
-          heli.targetPitch = -heli.maxPitch; 
-        } 
-        else if (this.gui.isKeyPressed("KeyS")) {
-          heli.accelerate(-3 * this.speedFactor);
-          heli.targetPitch = heli.maxPitch;
-        } 
-        else {
-          heli.targetPitch = 0; 
-        }
-
-        if (this.gui.isKeyPressed("KeyA")) {
-          heli.turn(0.05); 
-          heli.targetRoll = heli.maxRoll;
-          heli.tailBladeTargetSpeed = -heli.tailBladeMaxSpeed;
-          console.log("Helicopter Left");
-        }
-        else if (this.gui.isKeyPressed("KeyD")) {
-          heli.turn(-0.05); 
-          heli.targetRoll = heli.maxRoll;
-          heli.tailBladeTargetSpeed = +heli.tailBladeMaxSpeed;
-          console.log("Helicopter Right");
-        } 
-        else {
-          heli.targetRoll = 0;
-          heli.tailBladeSpeed = 0;
-        }
-
-        if (this.gui.isKeyPressed("Space")) {
-          heli.position.y += 0.5 * this.speedFactor;
-          heli.targetPitch = -heli.maxPitch; 
-
-        }
-        if (this.gui.isKeyPressed("ShiftLeft") && !heli.isReturningToBase) {
-          heli.position.y -= 0.5 * this.speedFactor;
-          heli.targetPitch = heli.maxPitch; 
-          if (heli.position.y <= 5) heli.position.y = 5;
-        }
-      }
-    }
-  }
+  
   
   update(t) {
     this.checkKeys();
@@ -228,7 +144,6 @@ export class MyScene extends CGFscene {
       });
     }
     
-    // Se desligares o fogo, limpa tudo
     if (!this.displayFire && this.fireAlreadyStarted) {
       this.fireAlreadyStarted = false;
     
@@ -314,8 +229,8 @@ export class MyScene extends CGFscene {
 
     if (this.displayForest) {
       this.pushMatrix();
+      this.translate(this.forestTX, 0, this.forestTZ);
       this.scale(2.5, 2.5, 2.5);  
-      this.translate(10, 0, 3);
       this.forest.display();
       this.popMatrix();
     }
@@ -343,17 +258,10 @@ export class MyScene extends CGFscene {
     if (this.displayLake) {
       this.pushMatrix();
       this.translate(this.lakeTX, 0, this.lakeTZ);
-    
-      // Ativar shader de água
       this.setActiveShader(this.waterShader);
-      // Aplica o material com a textura da água (ligada na unidade 0)
       this.waterMaterial.apply();
-      // Liga o waterMap à unidade de textura 2
       this.waterMapTexture.bind(2);
-    
       this.lake.display();
-    
-      // Repor o shader por defeito
       this.setActiveShader(this.defaultShader);
       this.popMatrix();
     }
@@ -506,5 +414,101 @@ export class MyScene extends CGFscene {
     const worldZ = sceneTranslation.z + this.heli.position.z * scale;
   
     return { x: worldX, z: worldZ };
-  }  
+  }
+  
+  checkKeys() {
+    const heli = this.heli;
+    if(this.displayHeli) {
+      if (this.gui.isKeyPressed("KeyR")) {
+        heli.position = { ...heli.initialPosition };
+        heli.velocity = 0;
+        heli.state = "landed";
+        heli.orientation = 0;
+        heli.roll = 0;
+        heli.pitch = 0;
+        heli.bladeRotation = 0;
+        heli.bladeRotationSpeed = 0;
+        heli.tailBladeRotation = 0;
+        heli.tailBladeSpeed = 0;
+        heli.tailBladeTargetSpeed = 0;
+        heli.hoverTime = 0;
+        heli.hoverActive = false;
+        console.log("Helicopter reset");
+      } 
+      
+      const worldPos = this.getHeliWorldPosition();
+
+      if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL")) {
+        if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z)) {
+          console.log("TAMOS NO LAGO");
+          /* FAZER O HELICOPTERO DESCER ATE AO LAGO E O BALDE ENCHER */
+        } 
+        else {
+          console.log("Returning to helipad");
+          heli.isReturningToBase = true;
+          heli.initiateLandingSequence();
+        }
+      }
+    
+      if (this.gui.isKeyPressed("KeyP")) {
+        if (heli.state === "landed") {
+          heli.state = "taking_off";
+          heli.velocity = 0; 
+          console.log("Helicopter taking off");
+        }
+
+        if(this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z)) {
+          /* FAZER O HELICOPTERO VOLTAR A SUBIR DEPOIS DE ENCHER A AGUA */
+        }
+      }
+
+      if (this.gui.isKeyPressed("KeyO")) {
+        if(heli.isOverForest() && heli.isBucketFull) {
+          /* FAZER O HELICOPTERO LANÇAR A AGUA */
+        }
+      }
+
+      if (heli.state === "flying") {
+        if (this.gui.isKeyPressed("KeyW")) {
+          heli.accelerate(2 * this.speedFactor);
+          heli.targetPitch = -heli.maxPitch; 
+        } 
+        else if (this.gui.isKeyPressed("KeyS")) {
+          heli.accelerate(-3 * this.speedFactor);
+          heli.targetPitch = heli.maxPitch;
+        } 
+        else {
+          heli.targetPitch = 0; 
+        }
+
+        if (this.gui.isKeyPressed("KeyA")) {
+          heli.turn(0.05); 
+          heli.targetRoll = heli.maxRoll;
+          heli.tailBladeTargetSpeed = -heli.tailBladeMaxSpeed;
+          console.log("Helicopter Left");
+        }
+        else if (this.gui.isKeyPressed("KeyD")) {
+          heli.turn(-0.05); 
+          heli.targetRoll = heli.maxRoll;
+          heli.tailBladeTargetSpeed = +heli.tailBladeMaxSpeed;
+          console.log("Helicopter Right");
+        } 
+        else {
+          heli.targetRoll = 0;
+          heli.tailBladeSpeed = 0;
+        }
+
+        if (this.gui.isKeyPressed("Space")) {
+          heli.position.y += 0.5 * this.speedFactor;
+          heli.targetPitch = -heli.maxPitch; 
+
+        }
+        if (this.gui.isKeyPressed("ShiftLeft") && !heli.isReturningToBase) {
+          heli.position.y -= 0.5 * this.speedFactor;
+          heli.targetPitch = heli.maxPitch; 
+          if (heli.position.y <= 5) heli.position.y = 5;
+        }
+      }
+    }
+  }
 }

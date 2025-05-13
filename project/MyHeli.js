@@ -411,6 +411,8 @@ export class MyHeli extends CGFobject {
     const dz = worldZ - lakeCenterZ;
     const distanceSquared = dx * dx + dz * dz;
     return distanceSquared <= lakeRadius * lakeRadius;
-  }  
+  }
+
+  
 }
 
