@@ -198,6 +198,8 @@ export class MyScene extends CGFscene {
   update(t) {
     this.checkKeys();
     this.heli.update(t);
+    this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000});
+
   }
 
   updateBuilding() {
@@ -300,13 +302,22 @@ export class MyScene extends CGFscene {
     }
     if (this.displayLake) {
       this.pushMatrix();
-      this.translate(-20, -0.09, 20);
+      this.translate(-30, 0, 15);
+    
+      // Ativar shader de água
+      this.setActiveShader(this.waterShader);
+      // Aplica o material com a textura da água (ligada na unidade 0)
       this.waterMaterial.apply();
+      // Liga o waterMap à unidade de textura 2
+      this.waterMapTexture.bind(2);
+    
       this.lake.display();
-
+    
+      // Repor o shader por defeito
       this.setActiveShader(this.defaultShader);
       this.popMatrix();
     }
+    
   }
 
   initTextures() {

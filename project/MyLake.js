@@ -1,7 +1,7 @@
 import { CGFobject } from "../lib/CGF.js";
 
 export class MyLake extends CGFobject {
-  constructor(scene, radius, positionY = 0.1, slices = 64) {
+  constructor(scene, radius, positionY = 0.1, slices = 128) {
     super(scene);
     this.radius = radius;
     this.positionY = positionY;
@@ -22,18 +22,19 @@ export class MyLake extends CGFobject {
     this.texCoords.push(0.5, 0.5);
 
     for (let i = 0; i <= this.slices; i++) {
-		const angle = i * 2 * Math.PI / this.slices;
-		const x = Math.cos(angle);
-		const y = Math.sin(angle);
-
-		this.vertices.push(x, y, 0);
-		this.normals.push(0, 0, 1);
-		
-		let u = (x + 1.0) * 0.5;
-		let v = (y + 1.0) * 0.5;
-		this.texCoords.push(u, v);
-
+      const angle = i * 2 * Math.PI / this.slices;
+      const x = Math.cos(angle);
+      const y = Math.sin(angle);
+    
+      this.vertices.push(x, y, 0);
+      this.normals.push(0, 0, 1);
+    
+      // Coordenadas de textura suaves (de forma radial)
+      let u = 0.5 + 0.5 * x;
+      let v = 0.5 + 0.5 * y;
+      this.texCoords.push(u, v);
     }
+    
 
     for (let i = 1; i <= this.slices; i++) {
       this.indices.push(0, i, i + 1);
