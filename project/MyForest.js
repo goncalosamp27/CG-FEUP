@@ -4,6 +4,7 @@ import { MyTree } from './MyTree.js';
 export class MyForest extends CGFobject {
 	constructor(scene, rows = 5, cols = 4) {
 		super(scene);
+		this.scene = scene;
 
 		this.rows = rows;
 		this.cols = cols;
@@ -76,5 +77,5 @@ export class MyForest extends CGFobject {
 		  let value = c + variation;
 		  return Math.min(1.0, Math.max(0.0, value)); 
 		});
-	  }
+	}
 }

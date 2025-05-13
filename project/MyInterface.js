@@ -29,7 +29,8 @@ export class MyInterface extends CGFinterface {
         this.gui.add(this.scene, 'speedFactor', 0.1, 3).name('Speed Factor');
         this.gui.add(this.scene, 'cruiseAltitude', 10, 50, 1).name("Cruise Altitude")
                 .onChange(value => {this.scene.heli.setCruiseAltitude(value);});
-      
+        this.gui.add(this.scene, 'displayFire').name('Display Fire');
+
         this.initKeys();
 
         return true;

@@ -7,6 +7,8 @@ import { MyBuilding } from "./MyBuilding.js"
 import { MyForest } from "./MyForest.js";
 import { MyHeli } from "./MyHeli.js";
 import { MyLake } from "./MyLake.js";
+import { MyFire } from "./MyFire.js";
+
 /**
  * MyScene
  * @constructor
@@ -26,6 +28,8 @@ export class MyScene extends CGFscene {
     this.displayLake = true;
     this.speedFactor = 1;
     this.cruiseAltitude = 15;
+    this.displayFire = false;
+    this.fireAlreadyStarted = false;
 
     super.init(application);
     this.initTextures();
@@ -136,7 +140,7 @@ export class MyScene extends CGFscene {
       }    
 
       if (this.gui.isKeyPressed("KeyL")) {
-        if (heli.state === "flying" && !heli.isReturning) {
+        if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0) {
           console.log("Returning to helipad");
           heli.initiateLandingSequence();
         }
@@ -200,6 +204,30 @@ export class MyScene extends CGFscene {
     this.heli.update(t);
     this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000});
 
+    if (this.displayFire && !this.fireAlreadyStarted) {
+      this.fireAlreadyStarted = true; // evita repetir
+    
+      this.forest.trees.forEach(({ tree }) => {
+        if (!tree.hasFire && Math.random() < 0.7) {
+          const numFlames = 4 + Math.floor(Math.random() * 6);
+          const fire = new MyFire(this, numFlames, 2, this.textures.fire);
+          tree.setOnFire(fire);
+        }
+      });
+    }
+    
+    // Se desligares o fogo, limpa tudo
+    if (!this.displayFire && this.fireAlreadyStarted) {
+      this.fireAlreadyStarted = false;
+    
+      this.forest.trees.forEach(({ tree }) => {
+        if (tree.hasFire) {
+          tree.hasFire = false;
+          tree.fire = null;
+        }
+      });
+    }
+    
   }
 
   updateBuilding() {
@@ -393,6 +421,14 @@ export class MyScene extends CGFscene {
       leafMat.loadTexture(texturePaths[i].leaves);
       leafMat.setTextureWrap('REPEAT', 'REPEAT');
     }
+
+    this.textures.fire = new CGFappearance(this);
+    this.textures.fire.setAmbient(0.9, 0.9, 0.9, 1.0);
+    this.textures.fire.setDiffuse(1.0, 1.0, 1.0, 1.0);
+    this.textures.fire.setSpecular(1.0, 1.0, 1.0, 1.0);
+    this.textures.fire.setShininess(100.0);
+    this.textures.fire.loadTexture("textures/fire.png");
+    this.textures.fire.setTextureWrap("REPEAT", "REPEAT");
   }
 
   initHeliTextures() {

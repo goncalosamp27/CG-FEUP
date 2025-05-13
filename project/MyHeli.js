@@ -244,6 +244,8 @@ export class MyHeli extends CGFobject {
   }
 
   turn(v) {
+    if (this.isReturningToBase) return;
+    
     this.orientation += v;
   
     this.direction = {
@@ -330,10 +332,15 @@ export class MyHeli extends CGFobject {
         }
       }
     
-      const angleDiff = this.targetOrientation - this.orientation;
-      if (Math.abs(angleDiff) > 0.01) {
-        this.orientation += angleDiff * 0.1; 
-      }
+      let angleDiff = this.targetOrientation - this.orientation;
+
+      angleDiff = ((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI;
+
+      const maxAngularSpeed = 1.5;
+      const angleStep = Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), maxAngularSpeed * delta);
+
+      this.orientation += angleStep;
+
     
       const dx = this.initialPosition.x - this.position.x;
       const dz = this.initialPosition.z - this.position.z;
@@ -387,6 +394,7 @@ export class MyHeli extends CGFobject {
   }
 
   accelerate(v) {
+    if (this.isReturningToBase) return;
     this.velocity += v;
     this.velocity = Math.max(0, Math.min(20, this.velocity)); // limita a velocidade
   }  

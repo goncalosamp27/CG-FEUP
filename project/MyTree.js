@@ -10,8 +10,7 @@ export class MyTree extends CGFobject {
 		leafColor = [0.2, 0.6, 0.2],
 		trunkMaterial,
 		leafMaterial
-	}) 
-
+	},) 
 	{
 		super(scene);
 
@@ -39,6 +38,9 @@ export class MyTree extends CGFobject {
 			const leafRadius = this.trunkRadius + (this.numLeaves - i) * 0.2;
 			this.leaves.push(new MyPyramid(scene, 6, 1, leafHeight, leafRadius));
 		}
+
+		this.hasFire = false;
+		this.fire = null;
 	}
 
 	display() {
@@ -82,6 +84,20 @@ export class MyTree extends CGFobject {
 
 		this.scene.gl.depthMask(true);
 		this.scene.gl.disable(this.scene.gl.BLEND);
+
+		if (this.hasFire && this.fire) {
+			this.scene.pushMatrix();
+			this.scene.translate(0, this.trunkHeight - 3, 0); 
+			this.fire.display();
+			this.scene.popMatrix();
+		}
+
 		this.scene.popMatrix();
 	}
+
+	setOnFire(fireObj) {
+		this.hasFire = true;
+		this.fire = fireObj;
+	}
+	  
 }
