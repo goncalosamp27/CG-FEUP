@@ -30,7 +30,7 @@ export class MyHeli extends CGFobject {
     this.miniblade = new MyBlade(this.scene, 1.5, 0.5, 0.05, 3);
 
     this.position = { x: 0, y: 0, z: 0 };
-    this.state = "landed"; // "landed", "taking_off", "flying", "landing"
+    this.state = "landed"; // "landed", "taking_off", "flying"
     this.velocity = 0;
     this.orientation = 0; 
     this.direction = { x: 0, z: 1 };
@@ -60,6 +60,9 @@ export class MyHeli extends CGFobject {
 
     this.initialPosition = { x: 0, y: 0, z: 0 };
     this.position = { ...this.initialPosition };
+
+    this.bucket = new MyFrustum(scene, 20, 2, 4, 2);
+    this.isBucketFull = false;
   }
 
   initiateLandingSequence() {
@@ -400,7 +403,14 @@ export class MyHeli extends CGFobject {
   }  
 
   setCruiseAltitude(value) {
-    this.cruiseAltitude = Math.max(10, Math.min(50, value));
+    this.cruiseAltitude = Math.max(15, Math.min(50, value));
+  }  
+
+  isOverLake(lakeCenterX, lakeCenterZ, lakeRadius, worldX = this.position.x, worldZ = this.position.z) {
+    const dx = worldX - lakeCenterX;
+    const dz = worldZ - lakeCenterZ;
+    const distanceSquared = dx * dx + dz * dz;
+    return distanceSquared <= lakeRadius * lakeRadius;
   }  
 }
 

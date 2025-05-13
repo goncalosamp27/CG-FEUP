@@ -44,7 +44,7 @@ export class MyTree extends CGFobject {
 	}
 
 	display() {
-		this.scene.pushMatrix();
+		this.scene.pushMatrix();	  
 
 		if (this.leanAngle !== 0) {
 		if (this.leanAxis === 'x')
@@ -63,6 +63,13 @@ export class MyTree extends CGFobject {
 		this.scene.gl.enable(this.scene.gl.BLEND);
 		this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA);
 		this.scene.gl.depthMask(false);
+
+		if (this.hasFire && this.fire) {
+			this.scene.pushMatrix();
+			this.scene.translate(0, -1, 0);
+			this.fire.display();
+			this.scene.popMatrix();
+		  }
 
 		let currentY = this.trunkHeight / 3;
 		for (let i = 0; i < this.leaves.length; i++) {
@@ -85,12 +92,6 @@ export class MyTree extends CGFobject {
 		this.scene.gl.depthMask(true);
 		this.scene.gl.disable(this.scene.gl.BLEND);
 
-		if (this.hasFire && this.fire) {
-			this.scene.pushMatrix();
-			this.scene.translate(0, this.trunkHeight - 3, 0); 
-			this.fire.display();
-			this.scene.popMatrix();
-		}
 
 		this.scene.popMatrix();
 	}

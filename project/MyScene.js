@@ -100,7 +100,10 @@ export class MyScene extends CGFscene {
 
     this.waterMapTexture = new CGFtexture(this, "textures/waterMap.jpg");
 
-    this.lake = new MyLake(this, 10, 0.1);
+    this.lakeRadius = 10;
+    this.lakeTX = -30;
+    this.lakeTZ = 15;
+    this.lake = new MyLake(this, this.lakeRadius, 0.1);
   }
   
   initLights() {
@@ -137,11 +140,17 @@ export class MyScene extends CGFscene {
         heli.hoverTime = 0;
         heli.hoverActive = false;
         console.log("Helicopter reset");
-      }    
+      } 
+      
+      const worldPos = this.getHeliWorldPosition();
 
-      if (this.gui.isKeyPressed("KeyL")) {
-        if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0) {
+      if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL")) {
+        if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z)) {
+          console.log("TAMOS NO LAGO");
+        } 
+        else {
           console.log("Returning to helipad");
+          heli.isReturningToBase = true;
           heli.initiateLandingSequence();
         }
       }
@@ -151,6 +160,10 @@ export class MyScene extends CGFscene {
           heli.state = "taking_off";
           heli.velocity = 0; 
           console.log("Helicopter taking off");
+        }
+
+        if(this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z)) {
+          /* FAZER O HELICOPTERO ENCHER O BALDE */
         }
       }
 
@@ -165,7 +178,6 @@ export class MyScene extends CGFscene {
         } 
         else {
           heli.targetPitch = 0; 
-          // heli.velocity = 0;
         }
 
         if (this.gui.isKeyPressed("KeyA")) {
@@ -190,10 +202,10 @@ export class MyScene extends CGFscene {
           heli.targetPitch = -heli.maxPitch; 
 
         }
-        if (this.gui.isKeyPressed("ShiftLeft")) {
+        if (this.gui.isKeyPressed("ShiftLeft") && !heli.isReturningToBase) {
           heli.position.y -= 0.5 * this.speedFactor;
           heli.targetPitch = heli.maxPitch; 
-          if (heli.position.y < 0) heli.position.y = 0;
+          if (heli.position.y <= 5) heli.position.y = 5;
         }
       }
     }
@@ -210,7 +222,7 @@ export class MyScene extends CGFscene {
       this.forest.trees.forEach(({ tree }) => {
         if (!tree.hasFire && Math.random() < 0.7) {
           const numFlames = 4 + Math.floor(Math.random() * 6);
-          const fire = new MyFire(this, numFlames, 2, this.textures.fire);
+          const fire = new MyFire(this, numFlames, 2, this.textures.fire, tree.height);
           tree.setOnFire(fire);
         }
       });
@@ -330,7 +342,7 @@ export class MyScene extends CGFscene {
     }
     if (this.displayLake) {
       this.pushMatrix();
-      this.translate(-30, 0, 15);
+      this.translate(this.lakeTX, 0, this.lakeTZ);
     
       // Ativar shader de água
       this.setActiveShader(this.waterShader);
@@ -475,4 +487,24 @@ export class MyScene extends CGFscene {
     this.heliTextures.black.loadTexture("textures/heli_bottom.png");
     this.heliTextures.black.setTextureWrap("REPEAT", "REPEAT");
   }
+
+  getHeliWorldPosition() {
+    const scale = 0.6;
+    const buildingScale = 5;
+    const heightPerFloor = 1;
+    const buildingHeight = (this.numFloorsSide + 1) * heightPerFloor;
+    const unitSize = 1;
+    const buildingCenterX = ((this.windowsPerFloor - 3) * unitSize * buildingScale) / 2;
+  
+    const sceneTranslation = {
+      x: 0,
+      y: this.displayBuilding ? buildingHeight * buildingScale + 5.6 : 5.7,
+      z: -12 - buildingCenterX
+    };
+  
+    const worldX = sceneTranslation.x + this.heli.position.x * scale;
+    const worldZ = sceneTranslation.z + this.heli.position.z * scale;
+  
+    return { x: worldX, z: worldZ };
+  }  
 }

@@ -7,12 +7,11 @@ export class MyFlame extends CGFobject {
   }
 
   initBuffers() {
-    const h = Math.sqrt(3) / 2;       // altura do triângulo equilátero (≈ 0.866)
-    const yBase = -h / 2;             // base centrada na origem
+    const h = Math.sqrt(3) / 2;       
+    const yBase = -h / 2;             
     const yTop = h / 2;
 
     this.vertices = [
-      // Frente
       0.0, yTop, 0.0,     
      -0.5, yBase, 0.0,    
       0.5, yBase, 0.0,   
@@ -39,9 +38,9 @@ export class MyFlame extends CGFobject {
     ];
 
     this.texCoords = [
-      0.5, 0.0,   // topo
-      0.0, 1.0,   // canto esquerdo
-      1.0, 1.0,   // canto direito
+      0.5, 0.0,   
+      0.0, 1.0,   
+      1.0, 1.0,   
 
       0.5, 0.0,
       0.0, 1.0,
