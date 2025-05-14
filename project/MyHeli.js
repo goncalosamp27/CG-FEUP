@@ -62,15 +62,12 @@ export class MyHeli extends CGFobject {
     this.position = { ...this.initialPosition };
 
     this.bucket = new MyFrustum(scene, 20, 2, 4, 2);
+    this.isCollectingWater = false;
+    this.waterCollectionTime = 0;
     this.isBucketFull = false;
-  }
 
-  initiateLandingSequence() {
-    this.isReturningToBase = true;
-    this.landingTarget = { x: 0, z: -12 };
-    this.targetOrientation = 0; 
+    this.returningToCruise = true;
   }
-  
 
   display() {
     this.scene.pushMatrix();
@@ -394,16 +391,44 @@ export class MyHeli extends CGFobject {
     }
 
     this.tailBladeRotation += this.tailBladeSpeed * delta;
+
+    if (this.isCollectingWater) {
+      const descendSpeed = 5;
+      const holdTime = 5; // segundos a segurar no nível da água
+      const deltaY = this.position.y - this.targetAltitude;
+    
+      if (!this.isBucketFull) {
+        if (deltaY > 0.1) {
+          this.position.y -= descendSpeed * delta;
+          if (this.position.y < this.targetAltitude) this.position.y = this.targetAltitude;
+        } 
+        else 
+        {
+          this.waterCollectionTime += delta;
+          if (this.waterCollectionTime >= holdTime) {
+            this.isBucketFull = true;
+            console.log("Bucket full");
+          }
+        }
+      } 
+      else this.isCollectingWater = false;
+    }
   }
 
   accelerate(v) {
     if (this.isReturningToBase) return;
     this.velocity += v;
     this.velocity = Math.max(0, Math.min(20, this.velocity)); // limita a velocidade
-  }  
+  }
+  
+  initiateLandingSequence() {
+    this.isReturningToBase = true;
+    this.landingTarget = { x: 0, z: -12 };
+    this.targetOrientation = 0; 
+  }
 
   setCruiseAltitude(value) {
-    this.cruiseAltitude = Math.max(15, Math.min(50, value));
+    this.cruiseAltitude = value;
   }  
 
   isOverLake(lakeCenterX, lakeCenterZ, lakeRadius, worldX = this.position.x, worldZ = this.position.z) {
@@ -413,6 +438,42 @@ export class MyHeli extends CGFobject {
     return distanceSquared <= lakeRadius * lakeRadius;
   }
 
+  isOverForest(forestBeginX, forestBeginZ, forestEndX, forestEndZ, worldX, worldZ) {
+    const minX = Math.min(forestBeginX, forestEndX);
+    const maxX = Math.max(forestBeginX, forestEndX);
+    const minZ = Math.min(forestBeginZ, forestEndZ);
+    const maxZ = Math.max(forestBeginZ, forestEndZ);
   
+    return worldX >= minX && 
+           worldX <= maxX && 
+           worldZ >= minZ && 
+           worldZ <= maxZ;
+  }
+
+  collectWater(currentWorldY) {
+    if (this.isCollectingWater || this.isBucketFull) return;
+  
+    this.isCollectingWater = true;
+    this.waterCollectionTime = 0;
+  
+    const desiredWorldY = 8;
+    const scale = 0.6;
+  
+    // Quanto o helicóptero tem de descer (em coordenadas de cena)
+    const deltaYScene = currentWorldY - desiredWorldY;
+  
+    // Convertes esse delta para a escala interna local do helicóptero
+    const localTargetY = this.position.y - deltaYScene / scale;
+  
+    this.targetAltitude = localTargetY;
+    console.log("descer até:", localTargetY);
+  }
+  
+
+  backToCruiseAltitude() {
+    if (this.isBucketFull && this.isCollectingWater) {
+      this.returningToCruise = true;
+    }
+  }
 }
 
