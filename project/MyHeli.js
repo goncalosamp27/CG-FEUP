@@ -2,6 +2,7 @@ import { CGFobject } from '../lib/CGF.js';
 import { MyFrustum } from './MyFrustum.js';
 import { MyPrism } from './MyPrism.js';
 import { MyBlade } from './MyBlade.js';
+import { MyRope } from './MyRope.js';
 
 export class MyHeli extends CGFobject {
   constructor(scene, textures, cruiseAltitude) {
@@ -30,21 +31,26 @@ export class MyHeli extends CGFobject {
     this.miniblade = new MyBlade(this.scene, 1.5, 0.5, 0.05, 3);
 
     this.position = { x: 0, y: 0, z: 0 };
-    this.state = "landed"; // "landed", "taking_off", "flying"
+    this.state = "landed"; // "landed",  // "taking_off", // "flying"
     this.velocity = 0;
     this.orientation = 0; 
     this.direction = { x: 0, z: 1 };
+
+    this.isCollectingWater = false;
+    this.waterCollectionTime = 0;
+    this.isBucketFull = false;
+    this.returningToCruise = false;
 
     this.bladeRotation = 0;
     this.bladeRotationSpeed = 0;
     this.maxBladeSpeed = 10; // podes ajustar este valor
 
-    this.roll = 0; // Inclinação atual
+    this.roll = 0;        // Inclinação atual
     this.targetRoll = 0; // Inclinação desejada
     this.maxRoll = 0.075; 
     this.rollSpeed = 2; 
 
-    this.pitch = 0; // inclinação frontal atual
+    this.pitch = 0;        // inclinação frontal atual
     this.targetPitch = 0; // inclinação desejada com W/S
     this.maxPitch = 0.1;
 
@@ -54,31 +60,31 @@ export class MyHeli extends CGFobject {
     this.tailBladeAcceleration = 10;
 
     this.hoverActive = false; // se a oscilação está ativa
-    this.hoverAmplitude = 1;     // altura máxima da oscilação
-    this.hoverSpeed = 2.0;         // frequência da oscilação
-    this.hoverTime = 0;            // acumulador de tempo para a animação
+    this.hoverAmplitude = 1; // altura máxima da oscilação
+    this.hoverSpeed = 2.0;  // frequência da oscilação
+    this.hoverTime = 0;    // acumulador de tempo para a animação
 
     this.initialPosition = { x: 0, y: 0, z: 0 };
     this.position = { ...this.initialPosition };
 
-    this.bucket = new MyFrustum(scene, 20, 2, 4, 2);
-    this.isCollectingWater = false;
-    this.waterCollectionTime = 0;
-    this.isBucketFull = false;
-
-    this.returningToCruise = true;
+    this.bucket = new MyFrustum(scene, 20, 5, 4, 3, [0,0,0], false);
+    this.rope = new MyRope(scene);
+    // this.bucketOffset = [0, 2, 4.5];
+    this.bucketOffset = [0, 5, 15];
   }
 
   display() {
     this.scene.pushMatrix();
-    this.scene.translate(
-      this.position.x + this.hoverOffsetX,
-      this.position.y + this.hoverOffsetY,
-      this.position.z + this.hoverOffsetZ
-    );
-        this.scene.rotate(this.orientation, 0, 1, 0);  
+    this.scene.translate(this.position.x + this.hoverOffsetX, this.position.y + this.hoverOffsetY, this.position.z + this.hoverOffsetZ);
+    this.scene.rotate(this.orientation, 0, 1, 0);  
     this.scene.rotate(this.roll, 0, 0, 1);        
-    this.scene.rotate(this.pitch, 1, 0, 0);       
+    this.scene.rotate(this.pitch, 1, 0, 0); 
+    
+    this.scene.pushMatrix();
+    this.scene.rotate(Math.PI / 2, 1, 0, 0);
+    this.scene.translate(this.bucketOffset[0], this.bucketOffset[1], this.bucketOffset[2]);
+    this.bucket.display();
+    this.scene.popMatrix();
 
     this.scene.pushMatrix();
     this.textures.body.apply();
@@ -281,7 +287,6 @@ export class MyHeli extends CGFobject {
       this.hoverOffsetX = 0;
     }
     
-  
     if (this.state === "taking_off") {
       if (this.bladeRotationSpeed < this.maxBladeSpeed) {
         this.bladeRotationSpeed += 2 * delta; 
@@ -411,8 +416,29 @@ export class MyHeli extends CGFobject {
           }
         }
       } 
-      else this.isCollectingWater = false;
     }
+
+    if (this.returningToCruise) {
+      const localCruiseY = this.cruiseAltitude / 0.6; // porque o heli é escalado no display
+      const deltaY = localCruiseY - this.position.y;
+      const ascendSpeed = 4;
+    
+      if (Math.abs(deltaY) > 0.1) {
+        const direction = Math.sign(deltaY);
+        this.position.y += direction * ascendSpeed * delta;
+    
+        // Corrigir overshoot
+        if ((direction > 0 && this.position.y > localCruiseY) ||
+            (direction < 0 && this.position.y < localCruiseY)) {
+          this.position.y = localCruiseY;
+        }
+      } else {
+        this.position.y = localCruiseY;
+        this.returningToCruise = false;
+        this.targetPitch = 0;
+        console.log("Returned to cruise altitude");
+      }
+    }    
   }
 
   accelerate(v) {
@@ -457,23 +483,24 @@ export class MyHeli extends CGFobject {
     this.waterCollectionTime = 0;
   
     const desiredWorldY = 8;
-    const scale = 0.6;
   
-    // Quanto o helicóptero tem de descer (em coordenadas de cena)
     const deltaYScene = currentWorldY - desiredWorldY;
-  
-    // Convertes esse delta para a escala interna local do helicóptero
-    const localTargetY = this.position.y - deltaYScene / scale;
+    const localTargetY = this.position.y - deltaYScene / 0.6;
   
     this.targetAltitude = localTargetY;
     console.log("descer até:", localTargetY);
   }
-  
 
-  backToCruiseAltitude() {
-    if (this.isBucketFull && this.isCollectingWater) {
-      this.returningToCruise = true;
-    }
+  backToCruiseAltitude(currentWorldY) {
+    this.isCollectingWater = false;
+    const desiredWorldY = this.cruiseAltitude; 
+    const scale = 0.6;
+
+    const deltaYScene = desiredWorldY - currentWorldY;
+    const localTargetY = this.position.y + deltaYScene / scale;
+
+    this.targetAltitude = localTargetY;
+    this.returningToCruise = true;
   }
 }
 

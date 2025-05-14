@@ -19,16 +19,16 @@ export class MyScene extends CGFscene {
   }
   init(application) {
     this.displayAxis = false;
-    this.displayPlane = true;
+    this.displayPlane = false;
     this.displayGlobe = false;
-    this.displayPanorama = true;
-    this.displayBuilding = true;
-    this.displayForest = true;
+    this.displayPanorama = false;
+    this.displayBuilding = false;
+    this.displayForest = false;
     this.displayHeli = true;
-    this.displayLake = true;
+    this.displayLake = false;
+    this.displayFire = false;
     this.speedFactor = 1;
     this.cruiseAltitude = 15;
-    this.displayFire = false;
     this.fireAlreadyStarted = false;
 
     super.init(application);
@@ -159,7 +159,7 @@ export class MyScene extends CGFscene {
 
   updateBuilding() {
     this.buildBuilding();
-    this.resetScene();
+    this.resetHeli();
   }
 
   buildBuilding() {
@@ -445,8 +445,8 @@ export class MyScene extends CGFscene {
           console.log("Helicopter taking off");
         }
 
-        if(this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z) && heli.isBucketFull && heli.y < this.cruiseAltitude) {
-          heli.backToCruiseAltitude();  /* FAZER O HELICOPTERO VOLTAR A SUBIR DEPOIS DE ENCHER A AGUA */
+        if(heli.isBucketFull) {
+          heli.backToCruiseAltitude();  
         }
       }
 
@@ -458,11 +458,11 @@ export class MyScene extends CGFscene {
       }
 
       if (heli.state === "flying") {
-        if (this.gui.isKeyPressed("KeyW")) {
+        if (this.gui.isKeyPressed("KeyW") && !heli.isCollectingWater && !heli.returningToCruise) {
           heli.accelerate(2 * this.speedFactor);
           heli.targetPitch = -heli.maxPitch; 
         } 
-        else if (this.gui.isKeyPressed("KeyS")) {
+        if (this.gui.isKeyPressed("KeyS") && !heli.isCollectingWater && !heli.returningToCruise) {
           heli.accelerate(-3 * this.speedFactor);
           heli.targetPitch = heli.maxPitch;
         } 
@@ -470,13 +470,13 @@ export class MyScene extends CGFscene {
           heli.targetPitch = 0; 
         }
 
-        if (this.gui.isKeyPressed("KeyA")) {
+        if (this.gui.isKeyPressed("KeyA") && !heli.isCollectingWater && !heli.returningToCruise) {
           heli.turn(0.05); 
           heli.targetRoll = heli.maxRoll;
           heli.tailBladeTargetSpeed = -heli.tailBladeMaxSpeed;
           console.log("Helicopter Left");
         }
-        else if (this.gui.isKeyPressed("KeyD")) {
+        if (this.gui.isKeyPressed("KeyD") && !heli.isCollectingWater && !heli.returningToCruise) {
           heli.turn(-0.05); 
           heli.targetRoll = heli.maxRoll;
           heli.tailBladeTargetSpeed = +heli.tailBladeMaxSpeed;
@@ -487,12 +487,11 @@ export class MyScene extends CGFscene {
           heli.tailBladeSpeed = 0;
         }
 
-        if (this.gui.isKeyPressed("Space") && !heli.isBucketFull && !heli.isCollectingWater) {
+        if (this.gui.isKeyPressed("Space") && !heli.isCollectingWater && !heli.isReturningToBase) {
           heli.position.y += 0.5 * this.speedFactor;
           heli.targetPitch = -heli.maxPitch; 
-
         }
-        if (this.gui.isKeyPressed("ShiftLeft") && !heli.isReturningToBase && !heli.isBucketFull && !heli.isCollectingWater) {
+        if (this.gui.isKeyPressed("ShiftLeft") && !heli.isReturningToBase && !heli.isCollectingWater) {
           heli.position.y -= 0.5 * this.speedFactor;
           heli.targetPitch = heli.maxPitch; 
           if (heli.position.y <= 5) heli.position.y = 5;
@@ -501,7 +500,7 @@ export class MyScene extends CGFscene {
     }
   }
 
-  resetScene() {
+  resetHeli() {
     this.heli.position = { ...this.heli.initialPosition };
     this.heli.velocity = 0;
     this.heli.state = "landed";
@@ -519,13 +518,5 @@ export class MyScene extends CGFscene {
     this.heli.isReturningToBase = false;
     this.heli.isCollectingWater = false;
     this.heli.waterCollectionTime = 0;
-    /*
-    this.fireAlreadyStarted = false;
-    this.displayFire = false;
-    this.forest.trees.forEach(({ tree }) => {
-      tree.hasFire = false;
-      tree.fire = null;
-    });
-    */
   }
 }
