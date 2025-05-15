@@ -2,7 +2,7 @@ import { CGFobject } from '../lib/CGF.js';
 import { MyFrustum } from './MyFrustum.js';
 import { MyPrism } from './MyPrism.js';
 import { MyBlade } from './MyBlade.js';
-import { MyRope } from './MyRope.js';
+import { MyLake } from './MyLake.js';
 
 export class MyHeli extends CGFobject {
   constructor(scene, textures, cruiseAltitude) {
@@ -16,7 +16,6 @@ export class MyHeli extends CGFobject {
 
     // Prism: (scene, slices, height, radius)
     // Frustum: (scene, slice, height, baseRadius, topRadius, tipOffset)
-
     this.body = new MyPrism(scene, this.slices, 10, this.radius); 
     this.cockpit = new MyFrustum(scene, this.slices, 5, this.radius, 2.2, [0, -0.6, 0]); 
     this.tail = new MyFrustum(scene, this.slices, 19.5, this.radius, 0.2, [0, 6, 0])
@@ -38,7 +37,8 @@ export class MyHeli extends CGFobject {
 
     this.isCollectingWater = false;
     this.waterCollectionTime = 0;
-    this.isBucketFull = false;
+    // this.isBucketFull = false;
+    this.isBucketFull = true;
     this.returningToCruise = false;
 
     this.bladeRotation = 0;
@@ -68,9 +68,9 @@ export class MyHeli extends CGFobject {
     this.position = { ...this.initialPosition };
 
     this.bucket = new MyFrustum(scene, 20, 5, 4, 3, [0,0,0], false);
-    this.rope = new MyRope(scene);
-    // this.bucketOffset = [0, 2, 4.5];
     this.bucketOffset = [0, 5, 15];
+    this.water = new MyLake(scene, 3.8, 0.1, 128);
+    // (scene, radius, positionY = 0.1, slices = ) 
   }
 
   display() {
@@ -80,11 +80,25 @@ export class MyHeli extends CGFobject {
     this.scene.rotate(this.roll, 0, 0, 1);        
     this.scene.rotate(this.pitch, 1, 0, 0); 
     
-    this.scene.pushMatrix();
-    this.scene.rotate(Math.PI / 2, 1, 0, 0);
-    this.scene.translate(this.bucketOffset[0], this.bucketOffset[1], this.bucketOffset[2]);
-    this.bucket.display();
-    this.scene.popMatrix();
+    if(this.isCollectingWater || this.isBucketFull) {
+      this.scene.pushMatrix();
+      this.textures.blade.apply();
+      this.scene.rotate(Math.PI / 2, 1, 0, 0);
+      this.scene.translate(this.bucketOffset[0], this.bucketOffset[1], this.bucketOffset[2]);
+      this.bucket.display();
+      this.scene.popMatrix();
+    }
+
+    if (this.isBucketFull) {
+      this.scene.pushMatrix();
+        this.scene.setActiveShader(this.scene.waterShader);
+        this.scene.waterMaterial.apply();
+        this.scene.waterMapTexture.bind(2);
+        this.scene.translate(0,-15.5,5);
+        this.water.display();
+      this.scene.popMatrix();
+      this.scene.setActiveShader(this.scene.defaultShader);
+    }
 
     this.scene.pushMatrix();
     this.textures.body.apply();
@@ -399,7 +413,7 @@ export class MyHeli extends CGFobject {
 
     if (this.isCollectingWater) {
       const descendSpeed = 5;
-      const holdTime = 5; // segundos a segurar no nível da água
+      const holdTime = 2; // segundos a segurar no nível da água
       const deltaY = this.position.y - this.targetAltitude;
     
       if (!this.isBucketFull) {
@@ -470,10 +484,7 @@ export class MyHeli extends CGFobject {
     const minZ = Math.min(forestBeginZ, forestEndZ);
     const maxZ = Math.max(forestBeginZ, forestEndZ);
   
-    return worldX >= minX && 
-           worldX <= maxX && 
-           worldZ >= minZ && 
-           worldZ <= maxZ;
+    return worldX >= minX && worldX <= maxX && worldZ >= minZ && worldZ <= maxZ;
   }
 
   collectWater(currentWorldY) {

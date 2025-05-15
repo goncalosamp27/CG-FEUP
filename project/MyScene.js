@@ -49,7 +49,7 @@ export class MyScene extends CGFscene {
     this.setUpdatePeriod(50);
 
     this.axis = new CGFaxis(this, 20, 1);
-    this.plane = new MyPlane(this, 64, 0, 20, 0, 20);
+    this.plane = new MyPlane(this, 1, 0, 10, 0, 10);
     this.sphere = new MySphere(this, 10, 50, 50);
 
     const panoramaTexture = new CGFappearance(this);
@@ -68,8 +68,8 @@ export class MyScene extends CGFscene {
     this.grassMaterial.setDiffuse(1, 1, 1, 1);
     this.grassMaterial.setSpecular(0.1, 0.1, 0.1, 1);
     this.grassMaterial.setShininess(10.0);
-    this.grassMaterial.loadTexture("textures/grass.png");
-    this.grassMaterial.setTextureWrap('MIRRORED_REPEAT', 'MIRRORED_REPEAT');
+    this.grassMaterial.loadTexture("textures/grass.jpg");
+    this.grassMaterial.setTextureWrap('REPEAT', 'REPEAT');
 
     this.earthMaterial = new CGFappearance(this);
     this.earthMaterial.setAmbient(2.5, 2.5, 2.5, 1);
@@ -201,8 +201,11 @@ export class MyScene extends CGFscene {
     }
 
     if(this.displayPanorama) {
+      this.pushMatrix();
+      this.translate(0,-80,0)
       this.panorama.display();
       this.setDefaultAppearance();
+      this.popMatrix();
     }
 
     if (this.displayPlane) {
@@ -225,6 +228,17 @@ export class MyScene extends CGFscene {
       this.pushMatrix();
       this.scale(5, 5, 5);  
       this.building.display();
+      this.popMatrix();
+    }
+
+    if (this.displayLake) {
+      this.pushMatrix();
+      this.translate(this.lakeTX, 0, this.lakeTZ);
+      this.setActiveShader(this.waterShader);
+      this.waterMaterial.apply();
+      this.waterMapTexture.bind(2);
+      this.lake.display();
+      this.setActiveShader(this.defaultShader);
       this.popMatrix();
     }
 
@@ -256,17 +270,6 @@ export class MyScene extends CGFscene {
     
       this.popMatrix();
     }
-    if (this.displayLake) {
-      this.pushMatrix();
-      this.translate(this.lakeTX, 0, this.lakeTZ);
-      this.setActiveShader(this.waterShader);
-      this.waterMaterial.apply();
-      this.waterMapTexture.bind(2);
-      this.lake.display();
-      this.setActiveShader(this.defaultShader);
-      this.popMatrix();
-    }
-    
   }
 
   initTextures() {
@@ -342,6 +345,15 @@ export class MyScene extends CGFscene {
       leafMat.loadTexture(texturePaths[i].leaves);
       leafMat.setTextureWrap('REPEAT', 'REPEAT');
     }
+
+    this.shadowMaterial = new CGFappearance(this);
+    this.shadowMaterial.setAmbient(0.1, 0.1, 0.1, 1);
+    this.shadowMaterial.setDiffuse(0.1, 0.1, 0.1, 1);
+    this.shadowMaterial.setSpecular(0, 0, 0, 1);
+    this.shadowMaterial.setEmission(0.05, 0.05, 0.05, 1);
+    this.shadowMaterial.loadTexture("textures/shader.png");
+    this.shadowMaterial.setTextureWrap("REPEAT", "REPEAT");
+    this.shadowMaterial.setShininess(1);
 
     this.textures.fire = new CGFappearance(this);
     this.textures.fire.setAmbient(0.9, 0.9, 0.9, 1.0);
@@ -422,12 +434,13 @@ export class MyScene extends CGFscene {
     const heli = this.heli;
     if(this.displayHeli) {
       if (this.gui.isKeyPressed("KeyR")) {
-        this.resetScene();
+        this.resetHeli();
       } 
+
       const worldPos = this.getHeliWorldPosition();
 
-      if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL")) {
-        if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z)) {
+      if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL") && !heli.isBucketFull) {
+        if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z) && !heli.isBucketFull) {
           console.log("OVER LAKE"); /* FAZER O HELICOPTERO DESCER ATE AO LAGO E O BALDE ENCHER */
           heli.collectWater(worldPos.y);
         } 

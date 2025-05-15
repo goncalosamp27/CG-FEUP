@@ -1,5 +1,6 @@
 import { CGFobject, CGFappearance } from '../lib/CGF.js';
 import { MyPyramid } from './MyPyramid.js';
+import { MyPlane } from './MyPlane.js';
 
 export class MyTree extends CGFobject {
 	constructor(scene, {
@@ -10,7 +11,7 @@ export class MyTree extends CGFobject {
 		leafColor = [0.2, 0.6, 0.2],
 		trunkMaterial,
 		leafMaterial
-	},) 
+	})
 	{
 		super(scene);
 
@@ -39,12 +40,31 @@ export class MyTree extends CGFobject {
 			this.leaves.push(new MyPyramid(scene, 6, 1, leafHeight, leafRadius));
 		}
 
+		this.shadow = new MyPlane(scene, 10, 0, 1, 0, 1);
+
 		this.hasFire = false;
 		this.fire = null;
 	}
 
 	display() {
-		this.scene.pushMatrix();	  
+		this.scene.pushMatrix();
+
+		this.scene.gl.enable(this.scene.gl.BLEND);
+		this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA);
+		this.scene.gl.depthMask(false);
+
+		this.scene.pushMatrix();
+		this.scene.translate(0, 0.01, 0);
+		let shadowScale = this.trunkRadius * 4;
+		this.scene.scale(shadowScale, shadowScale, shadowScale);
+		this.scene.rotate(-Math.PI / 2, 1, 0, 0); // plano horizontal
+		this.scene.shadowMaterial.apply();
+		this.shadow.display();
+		this.scene.popMatrix();
+
+		this.scene.gl.depthMask(true);
+		this.scene.gl.disable(this.scene.gl.BLEND);
+
 
 		if (this.leanAngle !== 0) {
 		if (this.leanAxis === 'x')
@@ -66,7 +86,7 @@ export class MyTree extends CGFobject {
 
 		if (this.hasFire && this.fire) {
 			this.scene.pushMatrix();
-			this.scene.translate(0, -1, 0);
+			this.scene.translate(0, 0, 0);
 			this.fire.display();
 			this.scene.popMatrix();
 		  }

@@ -8,7 +8,7 @@ export class MyForest extends CGFobject {
 
 		this.rows = rows;
 		this.cols = cols;
-		this.spacing = 4;
+		this.spacing = 3.5;
 		this.trees = [];
 
 		for (let i = 0; i < rows; i++) {

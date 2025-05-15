@@ -65,7 +65,7 @@ export class MyFire extends CGFobject {
 
     for (const flame of this.flames) {
       this.scene.pushMatrix();
-      this.scene.translate(flame.baseX, flame.yOffset, flame.baseZ);
+      this.scene.translate(flame.baseX, flame.yOffset - 1, flame.baseZ);
       this.scene.rotate(flame.rotation, 0, 1, 0);
       this.scene.scale(flame.width * 0.6, flame.height * 0.7, 1);
       this.drawFlame();
