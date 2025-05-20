@@ -1,33 +1,33 @@
 import { CGFobject } from '../lib/CGF.js';
-import { MyPrism } from './MyPrism.js';
+import { MyPrism }    from './MyPrism.js';
 
 export class MyRope extends CGFobject {
-  constructor(scene) {
+  constructor(scene, x1, y1, z1, x2, y2, z2, slices = 8, radius = 0.2) {
     super(scene);
-    this.slices = 12;
-    this.cylinder = new MyPrism(scene, this.slices, 0.2, 0.2);
+    this.slices = slices;
+    this.radius = radius;
+    this.setEndpoints(x1,y1,z1, x2,y2,z2);
   }
 
-  display(start, end) {
-    const dx = end[0] - start[0];
-    const dy = end[1] - start[1];
-    const dz = end[2] - start[2];
-    const length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  setEndpoints(x1, y1, z1, x2, y2, z2) {
+    this.p1 = { x: x1, y: y1, z: z1 };
+    this.p2 = { x: x2, y: y2, z: z2 };
+    const dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
+    this.length = Math.hypot(dx, dy, dz);
+    this.angle  = this.length>0 ? Math.acos(dz/this.length) : 0;
+    let ax = -dy, ay = dx, az = 0;
+    const al = Math.hypot(ax,ay,az);
+    if (al>1e-6) ax/=al, ay/=al, az/=al;
+    this.axis = { x: ax, y: ay, z: az };
+    this.prism = new MyPrism(this.scene, this.slices, this.length, this.radius);
+  }
 
-    if (length === 0) return;
-
-    const dir = [dx / length, dy / length, dz / length];
-    const angle = Math.acos(dir[1]);
-    const rotAxis = [dir[2], 0, -dir[0]];
-
-    const axisLength = Math.hypot(...rotAxis);
-    const axis = axisLength === 0 ? [1, 0, 0] : rotAxis.map(v => v / axisLength);
-
+  display() {
     this.scene.pushMatrix();
-    this.scene.translate(...start);
-    this.scene.rotate(angle, ...axis);
-    this.scene.scale(1, length, 1);
-    this.cylinder.display();
+      this.scene.translate(this.p1.x, this.p1.y, this.p1.z);
+      if (this.angle > 1e-3)
+        this.scene.rotate(this.angle, this.axis.x, this.axis.y, this.axis.z);
+      this.prism.display();
     this.scene.popMatrix();
   }
 }

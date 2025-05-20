@@ -19,13 +19,13 @@ export class MyScene extends CGFscene {
   }
   init(application) {
     this.displayAxis = false;
-    this.displayPlane = false;
+    this.displayPlane = true;
     this.displayGlobe = false;
-    this.displayPanorama = false;
-    this.displayBuilding = false;
-    this.displayForest = false;
+    this.displayPanorama = true;
+    this.displayBuilding = true;
+    this.displayForest = true;
     this.displayHeli = true;
-    this.displayLake = false;
+    this.displayLake = true;
     this.displayFire = false;
     this.speedFactor = 1;
     this.cruiseAltitude = 15;
@@ -262,8 +262,8 @@ export class MyScene extends CGFscene {
 
       if (this.displayBuilding)
         this.translate(0, buildingHeight * scale + 5.6, -12 -buildingCenterX);
-      else
-        this.translate(0, 5.7, -12);
+      else this.translate(0, 0, 0);
+        // this.translate(0, 5.7, -12);
 
       this.scale(0.6, 0.6, 0.6);
       this.heli.display();
@@ -366,13 +366,19 @@ export class MyScene extends CGFscene {
 
   initHeliTextures() {
     this.heliTextures = {
-      body: new CGFappearance(this),
-      body2: new CGFappearance(this),
+      body:    new CGFappearance(this),
+      body2:   new CGFappearance(this),
       cockpit: new CGFappearance(this),
-      blade: new CGFappearance(this),
-      black: new CGFappearance(this),
+      blade:   new CGFappearance(this),
+      black:   new CGFappearance(this),
+      rope:    new CGFappearance(this),
     };
-  
+
+    this.heliTextures.rope.setAmbient (0.25, 0.18, 0.10, 1);
+    this.heliTextures.rope.setDiffuse (0.75, 0.60, 0.40, 1);
+    this.heliTextures.rope.setSpecular(0.10, 0.08, 0.05, 1);
+    this.heliTextures.rope.setShininess(5);
+    
     this.heliTextures.body.setAmbient(0.8, 0.8, 0.8, 1);
     this.heliTextures.body.setDiffuse(0.5, 0.5, 0.5, 1);
     this.heliTextures.body.setSpecular(0.9, 0.9, 0.9, 1);
@@ -464,7 +470,7 @@ export class MyScene extends CGFscene {
       }
 
       if (this.gui.isKeyPressed("KeyO")) {
-        if(heli.isOverForest(this.forestTX + 2, this.forestTZ + 2, this.forestTX + this.forestScale * 4 * 2, this.forestTZ + 2 * 5 * this.forestScale, worldPos.x, worldPos.z) && heli.isBucketFull && heli.velocity === 0) {
+        if(heli.isOverForest(this.forestTX + 2, this.forestTZ + 2, this.forestTX + this.forestScale * 4 * 2, this.forestTZ + 2 * 5 * this.forestScale, worldPos.x, worldPos.z) && heli.isBucketFull && heli.isBucketFull && heli.velocity === 0) {
           console.log("OVER FOREST");
           heli.dropWater(); /* FAZER O HELICOPTERO LANÇAR A AGUA */
         }
@@ -514,22 +520,35 @@ export class MyScene extends CGFscene {
   }
 
   resetHeli() {
-    this.heli.position = { ...this.heli.initialPosition };
-    this.heli.velocity = 0;
-    this.heli.state = "landed";
-    this.heli.orientation = 0;
-    this.heli.roll = 0;
-    this.heli.pitch = 0;
-    this.heli.bladeRotation = 0;
-    this.heli.bladeRotationSpeed = 0;
-    this.heli.tailBladeRotation = 0;
-    this.heli.tailBladeSpeed = 0;
-    this.heli.tailBladeTargetSpeed = 0;
-    this.heli.hoverTime = 0;
-    this.heli.hoverActive = false;
-    this.heli.isBucketFull = false;
-    this.heli.isReturningToBase = false;
-    this.heli.isCollectingWater = false;
-    this.heli.waterCollectionTime = 0;
+    const h = this.heli;
+    h.position           = { ...h.initialPosition };
+    h.velocity           = 0;
+    h.state              = "landed";
+    h.orientation        = 0;
+    h.direction          = { x: 0, z: 1 };
+    h.roll               = 0;
+    h.targetRoll         = 0;
+    h.pitch              = 0;
+    h.targetPitch        = 0;
+    h.bladeRotation      = 0;
+    h.bladeRotationSpeed = 0;
+    h.tailBladeRotation  = 0;
+    h.tailBladeSpeed     = 0;
+    h.tailBladeTargetSpeed = 0;
+    h.hoverActive        = false;
+    h.hoverTime          = 0;
+    h.hoverOffsetX       = 0;
+    h.hoverOffsetY       = 0;
+    h.hoverOffsetZ       = 0;
+    h.isCollectingWater  = false;
+    h.isBucketFull       = false;
+    h.waterCollectionTime= 0;
+    h.bucketDropOffsetY  = 0;
+    h.returningToCruise  = false;
+    h.isReturningToBase  = false;
+    h.targetAltitude     = undefined; 
+    h.turningLeft        = false;
+    h.turningRight       = false;
   }
+  
 }

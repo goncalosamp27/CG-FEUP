@@ -1,5 +1,4 @@
 import { MyPlane } from './MyPlane.js';  
-import { CGFobject, CGFappearance } from "../lib/CGF.js";
 import { MyWindow } from './MyWindow.js';  
 
 export class MyBuilding {

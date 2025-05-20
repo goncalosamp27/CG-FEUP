@@ -3,6 +3,7 @@ import { MyFrustum } from './MyFrustum.js';
 import { MyPrism } from './MyPrism.js';
 import { MyBlade } from './MyBlade.js';
 import { MyLake } from './MyLake.js';
+import { MyRope } from './MyRope.js';
 
 export class MyHeli extends CGFobject {
   constructor(scene, textures, cruiseAltitude) {
@@ -37,13 +38,15 @@ export class MyHeli extends CGFobject {
 
     this.isCollectingWater = false;
     this.waterCollectionTime = 0;
-    // this.isBucketFull = false;
-    this.isBucketFull = true;
+    this.isBucketFull = false;
     this.returningToCruise = false;
+    this.isDroppingWater = false;
+    this.bucketRotation      = 0;       
+    this.bucketRotationSpeed = Math.PI / 2;
 
     this.bladeRotation = 0;
     this.bladeRotationSpeed = 0;
-    this.maxBladeSpeed = 10; // podes ajustar este valor
+    this.maxBladeSpeed = 10;
 
     this.roll = 0;        // Inclinação atual
     this.targetRoll = 0; // Inclinação desejada
@@ -56,7 +59,7 @@ export class MyHeli extends CGFobject {
 
     this.tailBladeRotation = 0;
     this.tailBladeSpeed = 0;
-    this.tailBladeMaxSpeed = 10; // ajustável
+    this.tailBladeMaxSpeed = 10; 
     this.tailBladeAcceleration = 10;
 
     this.hoverActive = false; // se a oscilação está ativa
@@ -67,10 +70,19 @@ export class MyHeli extends CGFobject {
     this.initialPosition = { x: 0, y: 0, z: 0 };
     this.position = { ...this.initialPosition };
 
-    this.bucket = new MyFrustum(scene, 20, 5, 4, 3, [0,0,0], false);
-    this.bucketOffset = [0, 5, 15];
-    this.water = new MyLake(scene, 3.8, 0.1, 128);
-    // (scene, radius, positionY = 0.1, slices = ) 
+    // Frustum: (scene, slice, height, baseRadius, topRadius, tipOffset)
+    // this.bucket = new MyFrustum(scene, 20, 4, 3, 2, [0,0,0], false);
+    this.bucket = new MyFrustum(scene, 20, 4, 3.5, 3, [0,0,0], false);
+    this.bucketOffset = [0, 5, -1];
+
+    this.bucketDropOffsetY = 0;      
+    this.bucketDropTargetY = -15;     
+    this.bucketDropSpeed = 3;        
+
+    this.water = new MyLake(scene, 3.3, 0.1, 128);
+
+    this.cable1 = new MyRope(scene);
+    this.cable2 = new MyRope(scene);
   }
 
   display() {
@@ -79,13 +91,44 @@ export class MyHeli extends CGFobject {
     this.scene.rotate(this.orientation, 0, 1, 0);  
     this.scene.rotate(this.roll, 0, 0, 1);        
     this.scene.rotate(this.pitch, 1, 0, 0); 
-    
-    if(this.isCollectingWater || this.isBucketFull) {
+
+    const start = { x: 0, y: -1, z:  5 };  
+    const bx = this.bucketOffset[0];
+    const by = this.bucketOffset[1];
+    const bz = this.bucketOffset[2] - this.bucketDropOffsetY;
+
+    const bucketTopLocal = {
+      x: bx,
+      y: -bz - 0.8,
+      z: by
+    };
+
+    const end1 = { x: bucketTopLocal.x + 3.3, y: bucketTopLocal.y, z: bucketTopLocal.z };
+    const end2 = { x: bucketTopLocal.x - 3.3, y: bucketTopLocal.y, z: bucketTopLocal.z };
+
+    this.cable1.setEndpoints(
+      start.x, start.y, start.z,
+      end1.x,   end1.y,   end1.z
+    );
+    this.cable2.setEndpoints(
+      start.x, start.y, start.z,
+      end2.x,   end2.y,   end2.z
+    );
+    this.textures.rope.apply();
+    this.cable1.display();
+    this.cable2.display();
+
+    if (this.isCollectingWater || this.isBucketFull) {
       this.scene.pushMatrix();
-      this.textures.blade.apply();
-      this.scene.rotate(Math.PI / 2, 1, 0, 0);
-      this.scene.translate(this.bucketOffset[0], this.bucketOffset[1], this.bucketOffset[2]);
-      this.bucket.display();
+        this.scene.rotate(Math.PI/2, 1, 0, 0);
+        this.scene.translate(
+          this.bucketOffset[0],
+          this.bucketOffset[1],
+          this.bucketOffset[2] - this.bucketDropOffsetY
+        );
+        this.scene.rotate(this.bucketRotation, 1, 0, 0);
+        this.textures.blade.apply();
+        this.bucket.display();
       this.scene.popMatrix();
     }
 
@@ -94,7 +137,7 @@ export class MyHeli extends CGFobject {
         this.scene.setActiveShader(this.scene.waterShader);
         this.scene.waterMaterial.apply();
         this.scene.waterMapTexture.bind(2);
-        this.scene.translate(0,-15.5,5);
+        this.scene.translate(0,-14.5,5);
         this.water.display();
       this.scene.popMatrix();
       this.scene.setActiveShader(this.scene.defaultShader);
@@ -360,7 +403,6 @@ export class MyHeli extends CGFobject {
 
       this.orientation += angleStep;
 
-    
       const dx = this.initialPosition.x - this.position.x;
       const dz = this.initialPosition.z - this.position.z;
       const distanceXZ = Math.sqrt(dx * dx + dz * dz);
@@ -413,7 +455,7 @@ export class MyHeli extends CGFobject {
 
     if (this.isCollectingWater) {
       const descendSpeed = 5;
-      const holdTime = 2; // segundos a segurar no nível da água
+      const holdTime = 2; 
       const deltaY = this.position.y - this.targetAltitude;
     
       if (!this.isBucketFull) {
@@ -453,6 +495,35 @@ export class MyHeli extends CGFobject {
         console.log("Returned to cruise altitude");
       }
     }    
+
+    if (this.isCollectingWater || this.isBucketFull) {
+      if (this.bucketDropOffsetY > this.bucketDropTargetY) {
+        this.bucketDropOffsetY -= this.bucketDropSpeed * delta;
+        if (this.bucketDropOffsetY < this.bucketDropTargetY) {
+          this.bucketDropOffsetY = this.bucketDropTargetY;
+        }
+      }
+    } else {
+      if (this.bucketDropOffsetY < 0) {
+        this.bucketDropOffsetY += this.bucketDropSpeed * delta;
+        if (this.bucketDropOffsetY > 0) {
+          this.bucketDropOffsetY = 0;
+        }
+      }
+    }
+    
+    if (this.isDroppingWater) {
+      this.bucketRotation += this.bucketRotationSpeed * delta;
+      if (this.bucketRotation >= Math.PI) {
+        this.bucketRotation = Math.PI;
+        this.isDroppingWater = false;
+      }
+    } 
+    else {
+      if (this.bucketRotation > 0) {
+        this.bucketRotation = Math.max(0, this.bucketRotation - this.bucketRotationSpeed * delta);
+      }
+    }
   }
 
   accelerate(v) {
@@ -512,6 +583,10 @@ export class MyHeli extends CGFobject {
 
     this.targetAltitude = localTargetY;
     this.returningToCruise = true;
+  }
+
+  dropWater() {
+    this.isDroppingWater = true;
   }
 }
 
