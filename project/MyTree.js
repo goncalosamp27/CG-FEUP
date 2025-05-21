@@ -120,5 +120,4 @@ export class MyTree extends CGFobject {
 		this.hasFire = true;
 		this.fire = fireObj;
 	}
-	  
 }

@@ -133,12 +133,13 @@ export class MyScene extends CGFscene {
     this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000});
 
     if (this.displayFire && !this.fireAlreadyStarted) {
-      this.fireAlreadyStarted = true; // evita repetir
+      this.fireAlreadyStarted = true;
     
       this.forest.trees.forEach(({ tree }) => {
         if (!tree.hasFire && Math.random() < 0.7) {
           const numFlames = 4 + Math.floor(Math.random() * 6);
-          const fire = new MyFire(this, numFlames, 2, this.textures.fire, tree.height);
+          const flameY = Math.random() * tree.height;
+          const fire = new MyFire(this, numFlames, 2, this.textures.fire, tree.height, flameY);
           tree.setOnFire(fire);
         }
       });
@@ -360,7 +361,7 @@ export class MyScene extends CGFscene {
     this.textures.fire.setDiffuse(1.0, 1.0, 1.0, 1.0);
     this.textures.fire.setSpecular(1.0, 1.0, 1.0, 1.0);
     this.textures.fire.setShininess(100.0);
-    this.textures.fire.loadTexture("textures/fire.png");
+    // this.textures.fire.loadTexture("textures/fire.png");
     this.textures.fire.setTextureWrap("REPEAT", "REPEAT");
   }
 

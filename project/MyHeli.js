@@ -39,10 +39,14 @@ export class MyHeli extends CGFobject {
     this.isCollectingWater = false;
     this.waterCollectionTime = 0;
     this.isBucketFull = false;
+    this.isBucketOut = false;
     this.returningToCruise = false;
     this.isDroppingWater = false;
     this.bucketRotation      = 0;       
     this.bucketRotationSpeed = Math.PI / 2;
+    this.bucketReturnSpeed   = Math.PI / 4;
+    this.bucketHoldTime      = 4; 
+    this.bucketHoldTimer     = 0;
 
     this.bladeRotation = 0;
     this.bladeRotationSpeed = 0;
@@ -118,7 +122,7 @@ export class MyHeli extends CGFobject {
     this.cable1.display();
     this.cable2.display();
 
-    if (this.isCollectingWater || this.isBucketFull) {
+    if (this.isCollectingWater || this.isBucketFull || this.isBucketOut) {
       this.scene.pushMatrix();
         this.scene.rotate(Math.PI/2, 1, 0, 0);
         this.scene.translate(
@@ -138,6 +142,7 @@ export class MyHeli extends CGFobject {
         this.scene.waterMaterial.apply();
         this.scene.waterMapTexture.bind(2);
         this.scene.translate(0,-14.5,5);
+        this.scene.rotate(this.bucketRotation, 1, 0, 0);
         this.water.display();
       this.scene.popMatrix();
       this.scene.setActiveShader(this.scene.defaultShader);
@@ -514,14 +519,22 @@ export class MyHeli extends CGFobject {
     
     if (this.isDroppingWater) {
       this.bucketRotation += this.bucketRotationSpeed * delta;
-      if (this.bucketRotation >= Math.PI) {
-        this.bucketRotation = Math.PI;
+      if (this.bucketRotation >= Math.PI / 3) {
+        this.bucketRotation = Math.PI / 3;
+        this.isReturningBucket = true;
         this.isDroppingWater = false;
+        this.bucketHoldTimer = 0; 
       }
     } 
-    else {
-      if (this.bucketRotation > 0) {
-        this.bucketRotation = Math.max(0, this.bucketRotation - this.bucketRotationSpeed * delta);
+    else if (this.isReturningBucket && this.bucketHoldTimer < this.bucketHoldTime) {
+  this.bucketHoldTimer += delta;
+    }
+    else if (this.isReturningBucket) {
+      this.bucketRotation -= this.bucketReturnSpeed * delta;
+      if (this.bucketRotation <= 0) {
+        this.bucketRotation = 0;
+        this.isReturningBucket = false;
+        this.isBucketFull = false;
       }
     }
   }
@@ -563,6 +576,7 @@ export class MyHeli extends CGFobject {
   
     this.isCollectingWater = true;
     this.waterCollectionTime = 0;
+    this.isBucketOut = true;
   
     const desiredWorldY = 8;
   
@@ -587,6 +601,8 @@ export class MyHeli extends CGFobject {
 
   dropWater() {
     this.isDroppingWater = true;
+    this.isReturningBucket = false;
+    this.bucketHoldTimer   = 0;
   }
 }
 
