@@ -30,6 +30,9 @@ export class MyScene extends CGFscene {
     this.speedFactor = 1;
     this.cruiseAltitude = 15;
     this.fireAlreadyStarted = false;
+    this.forestRows = 5;
+    this.forestCols = 4;
+    this.forestSpacing  = 3.5;
 
     super.init(application);
     this.initTextures();
@@ -83,7 +86,7 @@ export class MyScene extends CGFscene {
     this.windowsPerFloor = 3;
 
     this.buildBuilding();
-    this.forest = new MyForest(this);
+    this.forest = new MyForest(this, this.forestRows, this.forestCols, this.forestSpacing);
 
     this.heli = new MyHeli(this, this.heliTextures, this.cruiseAltitude);
 
@@ -106,7 +109,7 @@ export class MyScene extends CGFscene {
 
     this.forestTX = 26;
     this.forestTZ = 7;
-    this.forestScale = 2.5;
+    this.forestScale = 3.2;
   }
   
   initLights() {
@@ -137,9 +140,12 @@ export class MyScene extends CGFscene {
     
       this.forest.trees.forEach(({ tree }) => {
         if (!tree.hasFire && Math.random() < 0.7) {
-          const numFlames = 4 + Math.floor(Math.random() * 6);
-          const flameY = Math.random() * tree.height;
-          const fire = new MyFire(this, numFlames, 2, this.textures.fire, tree.height, flameY);
+          let flameY = Math.random() * tree.height;
+
+          const maxY = tree.height - 2;
+          flameY = Math.min(flameY, maxY);
+
+          const fire = new MyFire(this.scene, this.leafMaterial, flameY, this.trunkRadius);
           tree.setOnFire(fire);
         }
       });
@@ -518,6 +524,10 @@ export class MyScene extends CGFscene {
         }
       }
     }
+  }
+
+  updateForest() {
+    this.forest = new MyForest(this, this.forestRows, this.forestCols, this.forestSpacing);
   }
 
   resetHeli() {

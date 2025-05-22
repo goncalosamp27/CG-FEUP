@@ -2,19 +2,20 @@ import { CGFobject } from '../lib/CGF.js';
 import { MyTree } from './MyTree.js';
 
 export class MyForest extends CGFobject {
-	constructor(scene, rows = 5, cols = 4) {
+	constructor(scene, rows = 5, cols = 4, spacing = 3.5) {
 		super(scene);
 		this.scene = scene;
 
 		this.rows = rows;
 		this.cols = cols;
-		this.spacing = 3.5;
+		this.spacing = spacing;
 		this.trees = [];
 
 		for (let i = 0; i < rows; i++) {
 			for (let j = 0; j < cols; j++) {
-				const offsetX = (Math.random() - 0.5) * 1;
-				const offsetZ = (Math.random() - 0.5) * 1;
+				const jitter = this.spacing * 0.5;
+				const offsetX = (Math.random() - 0.5) * jitter;
+				const offsetZ = (Math.random() - 0.5) * jitter;
 
 				const height = 4 + Math.random() * 4; 
 				const trunkRadius = 0.2 + Math.random() * 0.2; 
