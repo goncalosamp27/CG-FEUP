@@ -9,10 +9,6 @@ import { MyHeli } from "./MyHeli.js";
 import { MyLake } from "./MyLake.js";
 import { MyFire } from "./MyFire.js";
 
-/**
- * MyScene
- * @constructor
- */
 export class MyScene extends CGFscene {
   constructor() {
     super();
@@ -477,10 +473,20 @@ export class MyScene extends CGFscene {
       }
 
       if (this.gui.isKeyPressed("KeyO")) {
-        if(heli.isOverForest(this.forestTX + 2, this.forestTZ + 2, this.forestTX + this.forestScale * 4 * 2, this.forestTZ + 2 * 5 * this.forestScale, worldPos.x, worldPos.z) && heli.isBucketFull && heli.isBucketFull && heli.velocity === 0) {
+          const spacing = this.forestSpacing; 
+          const half = spacing / 2;
+          
+          const beginX = this.forestTX - half;
+          const beginZ = this.forestTZ - half;
+
+          const endX = this.forestTX + spacing * (this.forestCols - 1) + half;
+          const endZ = this.forestTZ + spacing * (this.forestRows - 1) + half;
+
+
+          heli.isOverForest(beginX, beginZ, endX, endZ, worldPos.x, worldPos.z)
           console.log("OVER FOREST");
           heli.dropWater(); /* FAZER O HELICOPTERO LANÇAR A AGUA */
-        }
+        
       }
 
       if (heli.state === "flying") {
