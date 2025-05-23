@@ -84,18 +84,17 @@
 			this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE_MINUS_SRC_ALPHA);
 			this.scene.gl.depthMask(false);
 
-
 			let currentY = this.trunkHeight / 3;
 			for (let i = 0; i < this.leaves.length; i++) {
 				const leaf = this.leaves[i];
 				this.scene.pushMatrix();
+				
 				this.scene.translate(0, currentY, 0);
 				if (i % 2 === 1) {
 					this.scene.rotate(Math.PI / 6, 0, 1, 0);
 				}
 
-				this.leafMaterial.setAmbient(...this.leafColor, 1);
-				this.leafMaterial.setDiffuse(...this.leafColor, 1);
+				
 				this.leafMaterial.apply();
 
 				leaf.display();
@@ -106,18 +105,20 @@
 			this.scene.gl.depthMask(true);
 			this.scene.gl.disable(this.scene.gl.BLEND);
 
-			if (this.hasFire && this.fire) {
-				this.scene.pushMatrix();
-				this.scene.translate(0, 0, 0);
-				this.fire.display();
-				this.scene.popMatrix();
-			}
-
 			this.scene.popMatrix();
 		}
 
-		setOnFire(fireObj) {
-			this.hasFire = true;
-			this.fire = fireObj;
-		}
+	setOnFire(fireObj) {
+		this.hasFire = true;
+		this.fire = fireObj;
+
+		const offset = this.trunkRadius + 0.5;
+		const signX = Math.random() < 0.5 ? -1 : 1;
+		const signZ = Math.random() < 0.5 ? -1 : 1;
+
+		this.fire.scaleFire = 0.8 + Math.random() * 2;
+
+		this.fire.offsetX = offset * signX;
+		this.fire.offsetZ = offset * signZ;
 	}
+}

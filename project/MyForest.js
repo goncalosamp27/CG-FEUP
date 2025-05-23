@@ -57,11 +57,30 @@ export class MyForest extends CGFobject {
 	display() {
 		const camX = this.scene.camera.position[0];
 		const camZ = this.scene.camera.position[2];
+		
 		this.trees.sort((a, b) => {
 			const dA = (a.x - camX)**2 + (a.z - camZ)**2;
 			const dB = (b.x - camX)**2 + (b.z - camZ)**2;
 			return dB - dA; 
 		});
+
+		this.scene.setActiveShaderSimple(this.scene.fireShader);
+		this.scene.gl.activeTexture(this.scene.gl.TEXTURE1);
+		this.scene.fireTexture.bind(1);
+		this.scene.fireShader.setUniformsValues({ uSampler: 1 });
+
+		for (let { tree, x, z } of this.trees) {
+			if (tree.hasFire && tree.fire) {
+				this.scene.pushMatrix();
+				this.scene.translate(x + tree.fire.offsetX, -0.1, z + tree.fire.offsetZ);
+				this.scene.rotate(tree.fire.rotationAngle, 0, 1, 0);
+				this.scene.scale(1.2 * tree.fire.scaleFire, 1.4 * tree.fire.scaleFire, 0.8 * tree.fire.scaleFire);
+				tree.fire.display();
+				this.scene.popMatrix();
+			}
+		}
+
+		this.scene.setActiveShaderSimple(this.scene.defaultShader);
 
 	
 		for (let { tree, x, z } of this.trees) {
@@ -70,6 +89,8 @@ export class MyForest extends CGFobject {
 			tree.display();
 			this.scene.popMatrix();
 		}
+
+		
 	}
 
 	varyColor(baseColor, jitter = 0.1) {

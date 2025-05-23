@@ -103,9 +103,12 @@ export class MyScene extends CGFscene {
     this.lakeTZ = 15;
     this.lake = new MyLake(this, this.lakeRadius, 0.1);
 
-    this.forestTX = 26;
-    this.forestTZ = 7;
+    this.forestTX = 30;
+    this.forestTZ = 10;
     this.forestScale = 3.2;
+
+    this.fireShader = new CGFshader(this.gl, "shaders/fire.vert", "shaders/fire.frag");
+    this.fireShader.setUniformsValues({ uSampler: 1, timeFactor: 0 });
   }
   
   initLights() {
@@ -127,25 +130,30 @@ export class MyScene extends CGFscene {
   
   
   update(t) {
+    this.time = t;
     this.checkKeys();
     this.heli.update(t);
     this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000});
+    this.fireShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
 
     if (this.displayFire && !this.fireAlreadyStarted) {
       this.fireAlreadyStarted = true;
-    
-      this.forest.trees.forEach(({ tree }) => {
-        if (!tree.hasFire && Math.random() < 0.7) {
-          let flameY = Math.random() * tree.height;
 
-          const maxY = tree.height - 2;
-          flameY = Math.min(flameY, maxY);
+      const shuffledTrees = [...this.forest.trees].sort(() => Math.random() - 0.5);
+      const totalTrees = shuffledTrees.length;
+      const treesOnFireCount = Math.floor(0.7 * totalTrees); 
 
-          const fire = new MyFire(this.scene, this.leafMaterial, flameY, this.trunkRadius);
+      for (let i = 0; i < treesOnFireCount; i++) {
+        const { tree } = shuffledTrees[i];
+
+        if (!tree.hasFire) {
+          const fire = new MyFire(this);
+          fire.rotationAngle = Math.random() * Math.PI / 2;
           tree.setOnFire(fire);
         }
-      });
+      }
     }
+
     
     if (!this.displayFire && this.fireAlreadyStarted) {
       this.fireAlreadyStarted = false;
@@ -187,16 +195,11 @@ export class MyScene extends CGFscene {
   }
 
   display() {
-    // ---- BEGIN Background, camera and axis setup
-    // Clear image and depth buffer everytime we update the scene
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    // Initialize Model-View matrix as identity (no transformation
     this.updateProjectionMatrix();
     this.loadIdentity();
-    // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
-
     
     if (this.displayAxis) {
       this.setDefaultAppearance();
@@ -205,7 +208,6 @@ export class MyScene extends CGFscene {
 
     if(this.displayPanorama) {
       this.pushMatrix();
-      this.translate(0,-80,0)
       this.panorama.display();
       this.setDefaultAppearance();
       this.popMatrix();
@@ -249,7 +251,7 @@ export class MyScene extends CGFscene {
       this.pushMatrix();
       this.translate(this.forestTX, 0, this.forestTZ);
       this.scale(this.forestScale, this.forestScale, this.forestScale);  
-      this.forest.display();
+      this.forest.display(this.time);
       this.popMatrix();
     }
 
@@ -265,8 +267,8 @@ export class MyScene extends CGFscene {
 
       if (this.displayBuilding)
         this.translate(0, buildingHeight * scale + 5.6, -12 -buildingCenterX);
-      else this.translate(0, 0, 0);
-        // this.translate(0, 5.7, -12);
+      else 
+        this.translate(0, 5.7, -12);
 
       this.scale(0.6, 0.6, 0.6);
       this.heli.display();
@@ -276,6 +278,8 @@ export class MyScene extends CGFscene {
   }
 
   initTextures() {
+    this.fireTexture = new CGFtexture(this, "textures/fire.png");
+
     this.textures = {
         wall: new CGFappearance(this),
         window: new CGFappearance(this),
@@ -313,7 +317,7 @@ export class MyScene extends CGFscene {
     this.textures.door.loadTexture("textures/door.png");
     this.textures.sign.loadTexture("textures/sign.png");
     this.textures.helipad.loadTexture("textures/helipad.png");
-    this.textures.wall.loadTexture("textures/quartz.png");
+    this.textures.wall.loadTexture("textures/quartz.jpg");
 
     for (let key in this.textures) {
         this.textures[key].setTextureWrap('REPEAT', 'REPEAT');
@@ -357,14 +361,6 @@ export class MyScene extends CGFscene {
     this.shadowMaterial.loadTexture("textures/shader.png");
     this.shadowMaterial.setTextureWrap("REPEAT", "REPEAT");
     this.shadowMaterial.setShininess(1);
-
-    this.textures.fire = new CGFappearance(this);
-    this.textures.fire.setAmbient(0.9, 0.9, 0.9, 1.0);
-    this.textures.fire.setDiffuse(1.0, 1.0, 1.0, 1.0);
-    this.textures.fire.setSpecular(1.0, 1.0, 1.0, 1.0);
-    this.textures.fire.setShininess(100.0);
-    // this.textures.fire.loadTexture("textures/fire.png");
-    this.textures.fire.setTextureWrap("REPEAT", "REPEAT");
   }
 
   initHeliTextures() {

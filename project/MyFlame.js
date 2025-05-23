@@ -8,8 +8,8 @@ export class MyFlame extends CGFobject {
 
   initBuffers() {
     const h = Math.sqrt(3) / 2;       
-    const yBase = -h / 2;             
-    const yTop = h / 2;
+    const yBase = 0;             
+    const yTop = h;
 
     this.vertices = [
       0.0, yTop, 0.0,     

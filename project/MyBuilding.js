@@ -100,9 +100,9 @@ export class MyBuilding {
         this.scene.scale(...scaleVec);
 
         if (isDepth)
-            this.wall.updateTexCoordsAmplify(width * 2, height * 2);
+            this.wall.updateTexCoordsAmplify(width * 0.8, height * 0.8);
         else
-            this.wall.updateTexCoordsAmplify(width * 2, height * 2); 
+            this.wall.updateTexCoordsAmplify(width * 0.8, height * 0.8); 
 
         this.wallMaterial.apply();
         this.wall.display();
@@ -119,7 +119,7 @@ export class MyBuilding {
     this.scene.translate(xOffset, height, -depth/2);
     this.scene.rotate(-Math.PI / 2, 1, 0, 0);
     this.scene.scale(width, depth, 1);
-    this.roof.updateTexCoordsAmplify(width * 2, depth * 2);
+    this.roof.updateTexCoordsAmplify(width * 0.8, depth * 0.8);
     this.wallMaterial.apply();
     this.roof.display();
     this.scene.popMatrix();

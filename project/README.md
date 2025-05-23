@@ -8,6 +8,7 @@
 
 ![Screenshot 1](screenshots/project-t03-g10-1.png)
 Figura 1: Panorama (1ª perspetiva)
+
 ![Screenshot 1b](screenshots/project-t03-g10-1b.png)
 Figura 1b: Panorama (2ª perspetiva)
 
@@ -23,6 +24,13 @@ Figura 3: Floresta
 ![Screenshot 4](screenshots/project-t03-g10-4.png)
 Figura 4: Helicóptero
 
-### MyHeli
 ![Screenshot 5](screenshots/project-t03-g10-5.png)
 Figura 5: Animação de voo do Helicóptero
+
+### MyLake
+![Screenshot 6](screenshots/project-t03-g10-6.png)
+Figura 6: Helicóptero, com um balde, a apanhar água do lago
+
+### MyFire
+![Screenshot 7](screenshots/project-t03-g10-7.png)
+Figura 7: Incêndio na floresta
