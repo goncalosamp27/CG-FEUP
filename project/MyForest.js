@@ -75,7 +75,7 @@ export class MyForest extends CGFobject {
 				this.scene.translate(x + tree.fire.offsetX, -0.1, z + tree.fire.offsetZ);
 				this.scene.rotate(tree.fire.rotationAngle, 0, 1, 0);
 				this.scene.scale(1.2 * tree.fire.scaleFire, 1.4 * tree.fire.scaleFire, 0.8 * tree.fire.scaleFire);
-				tree.fire.display();
+				tree.fire.display(this.scene.time);
 				this.scene.popMatrix();
 			}
 		}

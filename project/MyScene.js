@@ -29,6 +29,9 @@ export class MyScene extends CGFscene {
     this.forestRows = 5;
     this.forestCols = 4;
     this.forestSpacing  = 3.5;
+    this.realisticFire = false;
+    this.fireSpreadInterval = 3000;
+    this.lastFireSpreadTime = 0;
 
     super.init(application);
     this.initTextures();
@@ -109,6 +112,8 @@ export class MyScene extends CGFscene {
 
     this.fireShader = new CGFshader(this.gl, "shaders/fire.vert", "shaders/fire.frag");
     this.fireShader.setUniformsValues({ uSampler: 1, timeFactor: 0 });
+
+    this.nextFireSpreadDelay = 2000 + Math.random() * 3000;
   }
   
   initLights() {
@@ -133,40 +138,68 @@ export class MyScene extends CGFscene {
     this.time = t;
     this.checkKeys();
     this.heli.update(t);
-    this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000});
+    this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
     this.fireShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
 
-    if (this.displayFire && !this.fireAlreadyStarted) {
-      this.fireAlreadyStarted = true;
+    if (this.realisticFire && !this.fireAlreadyStarted) {
+        const randomTreeData = this.forest.trees[Math.floor(Math.random() * this.forest.trees.length)];
+        const randomTree = randomTreeData.tree;
 
-      const shuffledTrees = [...this.forest.trees].sort(() => Math.random() - 0.5);
-      const totalTrees = shuffledTrees.length;
-      const treesOnFireCount = Math.floor(0.7 * totalTrees); 
-
-      for (let i = 0; i < treesOnFireCount; i++) {
-        const { tree } = shuffledTrees[i];
-
-        if (!tree.hasFire) {
-          const fire = new MyFire(this);
-          fire.rotationAngle = Math.random() * Math.PI / 2;
-          tree.setOnFire(fire);
+        if (!randomTree.hasFire) {
+            const fire = new MyFire(this);
+            fire.rotationAngle = Math.random() * Math.PI / 2;
+            randomTree.setOnFire(fire);
         }
-      }
+
+        this.fireAlreadyStarted = true;
+        this.lastFireSpreadTime = t;
+        this.nextFireSpreadDelay = 2000 + Math.random() * 3000;
     }
 
-    
-    if (!this.displayFire && this.fireAlreadyStarted) {
-      this.fireAlreadyStarted = false;
-    
-      this.forest.trees.forEach(({ tree }) => {
-        if (tree.hasFire) {
-          tree.hasFire = false;
-          tree.fire = null;
+    if (this.displayFire && !this.fireAlreadyStarted && !this.realisticFire) {
+        const shuffledTrees = [...this.forest.trees].sort(() => Math.random() - 0.5);
+        const totalTrees = shuffledTrees.length;
+        const treesOnFireCount = Math.floor(0.7 * totalTrees);
+
+        for (let i = 0; i < treesOnFireCount; i++) {
+            const { tree } = shuffledTrees[i];
+            if (!tree.hasFire) {
+                const fire = new MyFire(this);
+                fire.rotationAngle = Math.random() * Math.PI / 2;
+                tree.setOnFire(fire);
+            }
         }
-      });
+
+        this.fireAlreadyStarted = true;
     }
-    
+    const dynamicSpreadInterval = Math.pow(this.forestSpacing, 1.2) * 500;
+    if (this.realisticFire && t - this.lastFireSpreadTime > dynamicSpreadInterval + this.nextFireSpreadDelay) {
+        this.spreadFire();
+        this.lastFireSpreadTime = t;
+        this.nextFireSpreadDelay = 2000 + Math.random() * 3000;
+    }
+
+     if (!this.displayFire && !this.realisticFire && this.fireAlreadyStarted) {
+        this.forest.trees.forEach(({ tree }) => {
+          if (tree.hasFire && tree.fire && !tree.fire.isExtinguishing) {
+            tree.fire.startExtinguish(t);
+          }
+        });
+
+        const allFiresGone = this.forest.trees.every(({ tree }) => {
+          return !tree.hasFire || (tree.fire && tree.fire.isExtinguishing && tree.fire.getCurrentScale(t) === 0);
+        });
+
+        if (allFiresGone) {
+          this.fireAlreadyStarted = false;
+          this.forest.trees.forEach(({ tree }) => {
+            tree.hasFire = false;
+            tree.fire = null;
+          });
+        }
+    }
   }
+
 
   updateBuilding() {
     this.buildBuilding();
@@ -247,13 +280,6 @@ export class MyScene extends CGFscene {
       this.popMatrix();
     }
 
-    if (this.displayForest) {
-      this.pushMatrix();
-      this.translate(this.forestTX, 0, this.forestTZ);
-      this.scale(this.forestScale, this.forestScale, this.forestScale);  
-      this.forest.display(this.time);
-      this.popMatrix();
-    }
 
     if (this.displayHeli) {
       this.pushMatrix();
@@ -273,6 +299,13 @@ export class MyScene extends CGFscene {
       this.scale(0.6, 0.6, 0.6);
       this.heli.display();
     
+      this.popMatrix();
+    }
+    if (this.displayForest) {
+      this.pushMatrix();
+      this.translate(this.forestTX, 0, this.forestTZ);
+      this.scale(this.forestScale, this.forestScale, this.forestScale);  
+      this.forest.display(this.time);
       this.popMatrix();
     }
   }
@@ -446,7 +479,7 @@ export class MyScene extends CGFscene {
 
       if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL") && !heli.isBucketFull) {
         if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z) && !heli.isBucketFull) {
-          console.log("OVER LAKE"); /* FAZER O HELICOPTERO DESCER ATE AO LAGO E O BALDE ENCHER */
+          console.log("OVER LAKE"); 
           heli.collectWater(worldPos.y);
         } 
         else {
@@ -481,8 +514,7 @@ export class MyScene extends CGFscene {
 
           heli.isOverForest(beginX, beginZ, endX, endZ, worldPos.x, worldPos.z)
           console.log("OVER FOREST");
-          heli.dropWater(); /* FAZER O HELICOPTERO LANÇAR A AGUA */
-        
+          heli.dropWater();
       }
 
       if (heli.state === "flying") {
@@ -529,8 +561,62 @@ export class MyScene extends CGFscene {
   }
 
   updateForest() {
-    this.forest = new MyForest(this, this.forestRows, this.forestCols, this.forestSpacing);
+  this.forest = new MyForest(this, this.forestRows, this.forestCols, this.forestSpacing);
+
+  // Reset ao estado de fogo
+  this.fireAlreadyStarted = false;
+  this.lastFireSpreadTime = 0;
+
+  if (this.displayFire && !this.realisticFire && !this.fireAlreadyStarted) {
+  const shuffledTrees = [...this.forest.trees].sort(() => Math.random() - 0.5);
+  const totalTrees = shuffledTrees.length;
+  const treesOnFireCount = Math.floor(0.7 * totalTrees);
+
+  for (let i = 0; i < treesOnFireCount; i++) {
+    const { tree } = shuffledTrees[i];
+    if (!tree.hasFire) {
+      const fire = new MyFire(this);
+      fire.rotationAngle = Math.random() * Math.PI / 2;
+      tree.setOnFire(fire);
+    }
   }
+
+  this.fireAlreadyStarted = true;
+}
+
+}
+
+
+  spreadFire() {
+    const candidates = [];
+    const fireSpreadDistance = this.forestSpacing * 1.5;
+
+    this.forest.trees.forEach(({ tree: currentTree, x: x1, z: z1 }) => {
+      if (currentTree.hasFire) {
+        this.forest.trees.forEach(({ tree: neighborTree, x: x2, z: z2 }) => {
+          if (!neighborTree.hasFire) {
+            const dist = Math.hypot(x1 - x2, z1 - z2);
+            if (dist <= fireSpreadDistance) {
+              candidates.push(neighborTree);
+            }
+          }
+        });
+      }
+    });
+
+    const uniqueCandidates = [...new Set(candidates)];
+    const shuffled = uniqueCandidates.sort(() => Math.random() - 0.5);
+    const percentage = 0.2 + Math.random() * 0.2; // entre 20% e 40%
+    const maxToIgnite = Math.ceil(shuffled.length * percentage);
+
+    for (let i = 0; i < Math.min(maxToIgnite, shuffled.length); i++) {
+      const tree = shuffled[i];
+      const fire = new MyFire(this);
+      fire.rotationAngle = Math.random() * Math.PI / 2;
+      tree.setOnFire(fire);
+    }
+  }
+
 
   resetHeli() {
     const h = this.heli;
@@ -563,5 +649,4 @@ export class MyScene extends CGFscene {
     h.turningLeft        = false;
     h.turningRight       = false;
   }
-  
 }

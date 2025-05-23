@@ -602,7 +602,7 @@ export class MyHeli extends CGFobject {
   dropWater() {
     this.isDroppingWater = true;
     this.isReturningBucket = false;
-    this.bucketHoldTimer   = 0;
+    this.bucketHoldTimer = 0;
   }
 }
 
