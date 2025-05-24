@@ -32,6 +32,7 @@ export class MyScene extends CGFscene {
     this.realisticFire = false;
     this.fireSpreadInterval = 3000;
     this.lastFireSpreadTime = 0;
+    this.heliscale = 0.6;
 
     super.init(application);
     this.initTextures();
@@ -114,6 +115,17 @@ export class MyScene extends CGFscene {
     this.fireShader.setUniformsValues({ uSampler: 1, timeFactor: 0 });
 
     this.nextFireSpreadDelay = 2000 + Math.random() * 3000;
+
+    this.waterDropMaterial = new CGFappearance(this);
+    this.waterDropMaterial.setAmbient(0.7, 0.7, 1.0, 1.0);    
+    this.waterDropMaterial.setDiffuse(0.7, 0.9, 1.0, 1.0);    
+    this.waterDropMaterial.setSpecular(1.0, 1.0, 1.0, 1.0);  
+    this.waterDropMaterial.setEmission(0.2, 0.3, 0.5, 1.0); 
+    this.waterDropMaterial.loadTexture("textures/waterTex.jpg");
+    this.waterDropMaterial.setTextureWrap('REPEAT', 'REPEAT');
+    this.waterDropMaterial.setShininess(100);               
+
+    this.fallingWaterSpheres = [];
   }
   
   initLights() {
@@ -141,7 +153,7 @@ export class MyScene extends CGFscene {
     this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
     this.fireShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
 
-    if (this.realisticFire && !this.fireAlreadyStarted) {
+    if (this.realisticFire && !this.fireAlreadyStarted && !this.displayFire) {
         const randomTreeData = this.forest.trees[Math.floor(Math.random() * this.forest.trees.length)];
         const randomTree = randomTreeData.tree;
 
@@ -173,6 +185,7 @@ export class MyScene extends CGFscene {
         this.fireAlreadyStarted = true;
     }
     const dynamicSpreadInterval = Math.pow(this.forestSpacing, 1.2) * 500;
+
     if (this.realisticFire && t - this.lastFireSpreadTime > dynamicSpreadInterval + this.nextFireSpreadDelay) {
         this.spreadFire();
         this.lastFireSpreadTime = t;
@@ -180,24 +193,69 @@ export class MyScene extends CGFscene {
     }
 
      if (!this.displayFire && !this.realisticFire && this.fireAlreadyStarted) {
-        this.forest.trees.forEach(({ tree }) => {
-          if (tree.hasFire && tree.fire && !tree.fire.isExtinguishing) {
-            tree.fire.startExtinguish(t);
-          }
-        });
-
-        const allFiresGone = this.forest.trees.every(({ tree }) => {
-          return !tree.hasFire || (tree.fire && tree.fire.isExtinguishing && tree.fire.getCurrentScale(t) === 0);
-        });
-
-        if (allFiresGone) {
-          this.fireAlreadyStarted = false;
-          this.forest.trees.forEach(({ tree }) => {
-            tree.hasFire = false;
-            tree.fire = null;
-          });
+      this.forest.trees.forEach(({ tree }) => {
+        if (tree.hasFire && tree.fire && !tree.fire.isExtinguishing) {
+          tree.fire.startExtinguish(t);
         }
+      });
+
+      const allFiresGone = this.forest.trees.every(({ tree }) => {
+        return !tree.hasFire || (tree.fire && tree.fire.isExtinguishing && tree.fire.getCurrentScale(t) === 0);
+      });
+
+      if (allFiresGone) {
+        this.forest.trees.forEach(({ tree }) => {
+          tree.hasFire = false;
+          tree.fire = null;
+        });
+        this.fireAlreadyStarted = false;
+      }
     }
+
+    // AGUA
+    for (const drop of this.fallingWaterSpheres) {
+      if (!drop.active) continue;
+
+      drop.lifetime += 0.05;
+
+      drop.velocity += 9.8 * 0.05;
+      drop.y -= drop.velocity * 0.05;
+
+      const dx = Math.cos(drop.dirAngle) * drop.spreadSpeed * drop.lifetime * 20;
+      const dz = Math.sin(drop.dirAngle) * drop.spreadSpeed * drop.lifetime * 20;
+
+      drop.x = drop.initialX + dx;
+      drop.z = drop.initialZ + dz;
+
+      if (drop.y <= -2) {
+        drop.active = false;
+      }
+    }
+
+
+    if (this.fallingWaterSpheres.length > 0 && this.fallingWaterSpheres.every(s => !s.active)) {
+
+      this.forest.trees.forEach(({ tree }) => {
+        if (tree.hasFire && tree.fire && !tree.fire.isExtinguishing) {
+          tree.fire.startExtinguish(t);
+        }
+      });
+
+      const allFiresGone = this.forest.trees.every(({ tree }) => {
+        return !tree.hasFire || (tree.fire && tree.fire.isExtinguishing && tree.fire.getCurrentScale(t) === 0);
+      });
+
+      if (allFiresGone) {
+        this.forest.trees.forEach(({ tree }) => {
+          tree.hasFire = false;
+          tree.fire = null;
+        });
+
+        this.fallingWaterSpheres = [];
+      }
+    }
+
+    // AGUA
   }
 
 
@@ -296,11 +354,30 @@ export class MyScene extends CGFscene {
       else 
         this.translate(0, 5.7, -12);
 
-      this.scale(0.6, 0.6, 0.6);
+      this.scale(this.heliscale, this.heliscale, this.heliscale);
       this.heli.display();
     
       this.popMatrix();
     }
+
+    for (const drop of this.fallingWaterSpheres) {
+      if (!drop.active) continue;
+
+      this.pushMatrix();
+      this.translate(drop.x, drop.y, drop.z);
+      
+      const sxz = drop.scaleXZ || 0.8;
+      const sy = drop.scaleY || 1.5;
+      this.scale(sxz, sy, sxz); 
+
+      this.waterDropMaterial.apply(); 
+      drop.sphere.display();
+      this.popMatrix();
+    }
+
+
+
+
     if (this.displayForest) {
       this.pushMatrix();
       this.translate(this.forestTX, 0, this.forestTZ);
@@ -470,12 +547,12 @@ export class MyScene extends CGFscene {
   
   checkKeys() {
     const heli = this.heli;
+    const worldPos = this.getHeliWorldPosition();
+
     if(this.displayHeli) {
       if (this.gui.isKeyPressed("KeyR")) {
         this.resetHeli();
       } 
-
-      const worldPos = this.getHeliWorldPosition();
 
       if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL") && !heli.isBucketFull) {
         if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z) && !heli.isBucketFull) {
@@ -501,21 +578,17 @@ export class MyScene extends CGFscene {
         }
       }
 
-      if (this.gui.isKeyPressed("KeyO")) {
-          const spacing = this.forestSpacing; 
-          const half = spacing / 2;
-          
-          const beginX = this.forestTX - half;
-          const beginZ = this.forestTZ - half;
+      if (this.gui.isKeyPressed("KeyO") && heli.isBucketFull) {
+        const { x, z } = this.getHeliWorldPosition();
+        const bounds = this.getForestBounds();
 
-          const endX = this.forestTX + spacing * (this.forestCols - 1) + half;
-          const endZ = this.forestTZ + spacing * (this.forestRows - 1) + half;
-
-
-          heli.isOverForest(beginX, beginZ, endX, endZ, worldPos.x, worldPos.z)
-          console.log("OVER FOREST");
-          heli.dropWater();
+        if (x >= bounds.minX && x <= bounds.maxX &&
+            z >= bounds.minZ && z <= bounds.maxZ) {
+          this.heli.dropWater();
+        }
       }
+
+     // test if (this.gui.isKeyPressed("KeyO")) this.heli.dropWater();
 
       if (heli.state === "flying") {
         if (this.gui.isKeyPressed("KeyW") && !heli.isCollectingWater && !heli.returningToCruise) {
@@ -648,5 +721,48 @@ export class MyScene extends CGFscene {
     h.targetAltitude     = undefined; 
     h.turningLeft        = false;
     h.turningRight       = false;
+  }
+  
+  startWaterDrop(x, y, z) {
+  const numSpheres = 40;
+
+  for (let i = 0; i < numSpheres; i++) {
+    const scaleXZ = 0.6 + Math.random() * 1.5;
+    const scaleY = 1.2 + Math.random() * 2;
+    const speed = 2 + Math.random() * 3; 
+
+    const dirAngle = Math.random() * 2 * Math.PI;
+    const spreadSpeed = 0.05 + Math.random() * 0.2; 
+
+    this.fallingWaterSpheres.push({
+      sphere: new MySphere(this, 0.5, 16, 8, false),
+      x: x,
+      y: y,
+      z: z,
+      initialX: x,
+      initialZ: z,
+      velocity: speed,
+      spreadSpeed: spreadSpeed,
+      dirAngle: dirAngle,
+      active: true,
+      scaleXZ: scaleXZ,
+      scaleY: scaleY,
+      lifetime: 0
+    });
+  }
+}
+
+
+
+  getForestBounds() {
+    const treeWorldX = this.forest.trees.map(t => t.x * this.forestScale + this.forestTX);
+    const treeWorldZ = this.forest.trees.map(t => t.z * this.forestScale + this.forestTZ);
+
+    const minX = Math.min(...treeWorldX);
+    const maxX = Math.max(...treeWorldX);
+    const minZ = Math.min(...treeWorldZ);
+    const maxZ = Math.max(...treeWorldZ);
+
+    return { minX, maxX, minZ, maxZ };
   }
 }

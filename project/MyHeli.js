@@ -43,8 +43,8 @@ export class MyHeli extends CGFobject {
     this.returningToCruise = false;
     this.isDroppingWater = false;
     this.bucketRotation      = 0;       
-    this.bucketRotationSpeed = Math.PI / 2;
-    this.bucketReturnSpeed   = Math.PI / 4;
+    this.bucketRotationSpeed = Math.PI / 1.5;
+    this.bucketReturnSpeed   = Math.PI / 2;
     this.bucketHoldTime      = 4; 
     this.bucketHoldTimer     = 0;
 
@@ -136,12 +136,12 @@ export class MyHeli extends CGFobject {
       this.scene.popMatrix();
     }
 
-    if (this.isBucketFull) {
+    if (this.isBucketFull && this.bucketRotation === 0) {
       this.scene.pushMatrix();
         this.scene.setActiveShader(this.scene.waterShader);
         this.scene.waterMaterial.apply();
         this.scene.waterMapTexture.bind(2);
-        this.scene.translate(0,-14.5,5);
+        this.scene.translate(0,-14.5,4.9);
         this.scene.rotate(this.bucketRotation, 1, 0, 0);
         this.water.display();
       this.scene.popMatrix();
@@ -519,8 +519,8 @@ export class MyHeli extends CGFobject {
     
     if (this.isDroppingWater) {
       this.bucketRotation += this.bucketRotationSpeed * delta;
-      if (this.bucketRotation >= Math.PI / 3) {
-        this.bucketRotation = Math.PI / 3;
+      if (this.bucketRotation >= Math.PI) {
+        this.bucketRotation = Math.PI;
         this.isReturningBucket = true;
         this.isDroppingWater = false;
         this.bucketHoldTimer = 0; 
@@ -603,6 +603,28 @@ export class MyHeli extends CGFobject {
     this.isDroppingWater = true;
     this.isReturningBucket = false;
     this.bucketHoldTimer = 0;
+
+    const localX = 0;
+    const localY = -13;
+    const localZ = 4;
+
+    const cosO = Math.cos(this.orientation);
+    const sinO = Math.sin(this.orientation);
+
+    const rotatedX = localX * cosO + localZ * sinO;
+    const rotatedZ = localX * sinO + localZ * cosO;
+    const rotatedY = localY;
+
+    const scale = this.scene.heliscale;
+    const heliWorldPos = this.scene.getHeliWorldPosition();
+
+    const dropX = heliWorldPos.x + rotatedX * scale;
+    const dropY = heliWorldPos.y + rotatedY * scale - 1;
+    const dropZ = heliWorldPos.z + rotatedZ * scale;
+
+    console.log("Drop pos (final):", dropX, dropY, dropZ);
+    this.scene.startWaterDrop(dropX, dropY, dropZ);
   }
+
 }
 
