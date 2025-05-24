@@ -546,6 +546,7 @@ export class MyHeli extends CGFobject {
   }
   
   initiateLandingSequence() {
+    this.state = "landing";
     this.isReturningToBase = true;
     this.landingTarget = { x: 0, z: -12 };
     this.targetOrientation = 0; 

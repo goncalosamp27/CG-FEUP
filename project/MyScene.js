@@ -149,6 +149,7 @@ export class MyScene extends CGFscene {
   update(t) {
     this.time = t;
     this.checkKeys();
+    this.building.update(t);
     this.heli.update(t);
     this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
     this.fireShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
@@ -274,7 +275,10 @@ export class MyScene extends CGFscene {
       this.textures.wall,
       this.textures.door,
       this.textures.sign,
-      this.textures.helipad
+      this.textures.helipad,
+      this.helipadTextures,
+      this.signalLightBaseMaterial,
+      this.signalLightPulseMaterial
     );    
   }
 
@@ -323,7 +327,7 @@ export class MyScene extends CGFscene {
     if (this.displayBuilding) {
       this.pushMatrix();
       this.scale(5, 5, 5);  
-      this.building.display();
+      this.building.display(this.heli.state, this.time);
       this.popMatrix();
     }
 
@@ -375,9 +379,6 @@ export class MyScene extends CGFscene {
       this.popMatrix();
     }
 
-
-
-
     if (this.displayForest) {
       this.pushMatrix();
       this.translate(this.forestTX, 0, this.forestTZ);
@@ -395,7 +396,7 @@ export class MyScene extends CGFscene {
         window: new CGFappearance(this),
         door: new CGFappearance(this),
         sign: new CGFappearance(this),
-        helipad: new CGFappearance(this)
+        helipad: new CGFappearance(this),
     };
 
     this.textures.wall.setAmbient(0.7, 0.7, 0.7, 1);
@@ -426,12 +427,19 @@ export class MyScene extends CGFscene {
     this.textures.window.loadTexture("textures/window.png");
     this.textures.door.loadTexture("textures/door.png");
     this.textures.sign.loadTexture("textures/sign.png");
-    this.textures.helipad.loadTexture("textures/helipad.png");
     this.textures.wall.loadTexture("textures/quartz.jpg");
-
+    
     for (let key in this.textures) {
+      if (this.textures[key] instanceof CGFappearance) {
         this.textures[key].setTextureWrap('REPEAT', 'REPEAT');
+      }
     }
+
+    this.helipadTextures = {
+      normal: new CGFtexture(this, "textures/helipad.png"),
+      up:     new CGFtexture(this, "textures/helipadUP.png"),
+      down:   new CGFtexture(this, "textures/helipadDOWN.png")
+    };
 
     this.treeTextures = [
       {wood: new CGFappearance(this),leaves: new CGFappearance(this)},
@@ -522,6 +530,19 @@ export class MyScene extends CGFscene {
     this.heliTextures.black.setShininess(90);
     this.heliTextures.black.loadTexture("textures/heli_bottom.png");
     this.heliTextures.black.setTextureWrap("REPEAT", "REPEAT");
+
+    this.signalLightBaseMaterial = new CGFappearance(this);
+    this.signalLightBaseMaterial.setAmbient(0.3, 0.3, 0.3, 1);
+    this.signalLightBaseMaterial.setDiffuse(0.4, 0.4, 0.4, 1);
+    this.signalLightBaseMaterial.setSpecular(0.6, 0.6, 0.6, 1);
+    this.signalLightBaseMaterial.setShininess(50);
+
+    this.signalLightPulseMaterial = new CGFappearance(this);
+    this.signalLightPulseMaterial.setAmbient(0.3, 0.3, 0.3, 1);
+    this.signalLightPulseMaterial.setDiffuse(0.4, 0.4, 0.4, 1);
+    this.signalLightPulseMaterial.setSpecular(0.6, 0.6, 0.6, 1);
+    this.signalLightPulseMaterial.setShininess(50);
+    this.signalLightPulseMaterial.setEmission(0, 0, 0, 1);
   }
 
   getHeliWorldPosition() {

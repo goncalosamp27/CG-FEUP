@@ -1,8 +1,10 @@
 import { MyPlane } from './MyPlane.js';  
 import { MyWindow } from './MyWindow.js';  
+import { MyPrism } from './MyPrism.js';
+import { MySphere } from './MySphere.js';
 
 export class MyBuilding {
-  constructor(scene, numFloorsSide,windowsperfloor, windowTexture, color, wallMaterial, doorMaterial, signMaterial, helipadMaterial) {
+  constructor(scene, numFloorsSide,windowsperfloor, windowTexture, color, wallMaterial, doorMaterial, signMaterial, helipadMaterial,  helipadTextures, signalLightBaseMaterial, signalLightPulseMaterial) {
     this.scene = scene;
     this.numFloorsSide = numFloorsSide;
     this.windowsperfloor = windowsperfloor;
@@ -12,6 +14,9 @@ export class MyBuilding {
     this.doorTexture = doorMaterial;
     this.signTexture = signMaterial;
     this.helipadTexture = helipadMaterial;
+    this.helipadTextures = helipadTextures;
+    this.signalLightBaseMaterial = signalLightBaseMaterial;
+    this.signalLightPulseMaterial = signalLightPulseMaterial;
 
     this.totalWidth = this.windowsperfloor * 3;
 
@@ -23,6 +28,19 @@ export class MyBuilding {
     this.door = new MyPlane(scene, 10);  
     this.window = new MyWindow(scene, 1, 1, this.windowTexture);
     this.helipad = new MyPlane(scene, 10);  
+    this.signalLights = [
+      new MyPrism(scene, 8, 0.1, 0.05),
+      new MyPrism(scene, 8, 0.1, 0.05),
+      new MyPrism(scene, 8, 0.1, 0.05),
+      new MyPrism(scene, 8, 0.1, 0.05)
+    ];
+
+    this.signalLightSpheres = [
+      new MySphere(scene, 0.05, 12, 6),
+      new MySphere(scene, 0.05, 12, 6),
+      new MySphere(scene, 0.05, 12, 6),
+      new MySphere(scene, 0.05, 12, 6)
+    ];
   }
 
   initModules() {
@@ -32,14 +50,67 @@ export class MyBuilding {
     this.centralFloors = this.numFloorsSide + 1;
     this.centralDepth= this.centralWidth;
     this.depth = this.sideWidth;
+
+    let y = this.floorHeight * this.centralFloors;
+    let offset = this.centralWidth / 2; 
+
+    this.signalLightsTransforms = [
+      { x:  offset - 0.1, y: y, z:  -0.1 }, 
+      { x: -offset + 0.1, y: y, z:  -0.1 }, 
+      { x:  offset - 0.1, y: y, z: -2* offset + 0.1}, 
+      { x: -offset + 0.1, y: y, z: -2* offset + 0.1}  
+    ];
   }
 
-  display() {
-    // Central Module (one more floor)
+  update(t) {
+    if (!this.signalLightPulseMaterial) return; 
+
+    const state = this.scene.heli.state;
+    const inManoeuvre = (state === "landing" || state === "taking_off");
+
+    if (!inManoeuvre) return;
+
+    const frequency = 2.0;
+    const timeInSeconds = t / 1000.0;
+    const pulse = 0.5 + 0.5 * Math.sin(2 * Math.PI * frequency * timeInSeconds);
+
+    this.signalLightPulseMaterial.setEmission(pulse, 0, 0, 1);
+  }
+
+
+  display(heliState, time) {
+    const helipadWidth  = this.centralWidth * 0.7;
+    const helipadDepth  = this.centralWidth * 0.7;
     this.scene.pushMatrix();
     this.scene.translate(0, 0, 0);
     this.displayModule(this.centralFloors, this.centralWidth, 0, true, this.centralDepth);
     this.scene.popMatrix();
+
+    for (let i = 0; i < this.signalLights.length; i++) {
+      const { x, y, z } = this.signalLightsTransforms[i];
+      this.scene.pushMatrix();
+      this.scene.translate(x, y, z);
+      this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+
+      const state = this.scene.heli.state;
+      const inManoeuvre = (state === "landing" || state === "taking_off");
+
+      this.scene.signalLightBaseMaterial.apply();
+
+      this.signalLights[i].display();
+
+      this.scene.pushMatrix();
+      this.scene.translate(0, 0, 0.1); 
+      if (inManoeuvre) {
+        this.signalLightPulseMaterial.apply();
+      } else {
+        this.signalLightBaseMaterial.apply(); // esfera apagada quando não em manobra
+      }
+      this.signalLightSpheres[i].display();
+      this.scene.popMatrix();
+      this.scene.popMatrix();
+    }
+
 
     // Left Module (side module width)
     this.scene.pushMatrix();
@@ -71,8 +142,6 @@ export class MyBuilding {
 
     
     this.scene.pushMatrix();
-    const helipadWidth  = this.centralWidth * 0.7;
-    const helipadDepth  = this.centralWidth * 0.7;
 
     this.scene.translate(
       0,
@@ -82,8 +151,19 @@ export class MyBuilding {
     this.scene.rotate(-Math.PI / 2, 1, 0, 0);
     this.scene.scale(helipadWidth, helipadDepth, 1);
 
+    
+    let textureToUse = this.helipadTextures.normal;
+    if (heliState === "taking_off") textureToUse = this.helipadTextures.up;
+    if (heliState === "landing")    textureToUse = this.helipadTextures.down;
+
+    if ((heliState === "taking_off" || heliState === "landing") && Math.floor(time / 300) % 2 === 0) {
+      textureToUse = this.helipadTextures.normal;
+    }
+
+    this.helipadTexture.setTexture(textureToUse); 
     this.helipadTexture.apply();
     this.helipad.display();
+
     this.scene.popMatrix();
   }
 
@@ -135,8 +215,7 @@ export class MyBuilding {
             this.scene.scale(0.5, 0.5, 1);
             this.window.display();
             this.scene.popMatrix();
-        }
+      }
     }
-}
-
+  }
 }
