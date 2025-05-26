@@ -43,7 +43,7 @@ export class MyHeli extends CGFobject {
     this.returningToCruise = false;
     this.isDroppingWater = false;
     this.bucketRotation      = 0;       
-    this.bucketRotationSpeed = Math.PI / 1.5;
+    this.bucketRotationSpeed = Math.PI;
     this.bucketReturnSpeed   = Math.PI / 2;
     this.bucketHoldTime      = 4; 
     this.bucketHoldTimer     = 0;
@@ -480,7 +480,7 @@ export class MyHeli extends CGFobject {
     }
 
     if (this.returningToCruise) {
-      const localCruiseY = this.cruiseAltitude / 0.6; // porque o heli é escalado no display
+      const localCruiseY = this.cruiseAltitude / this.scene.heliscale; 
       const deltaY = localCruiseY - this.position.y;
       const ascendSpeed = 4;
     
@@ -579,10 +579,10 @@ export class MyHeli extends CGFobject {
     this.waterCollectionTime = 0;
     this.isBucketOut = true;
   
-    const desiredWorldY = 8;
+    const desiredWorldY = 7;
   
     const deltaYScene = currentWorldY - desiredWorldY;
-    const localTargetY = this.position.y - deltaYScene / 0.6;
+    const localTargetY = this.position.y - deltaYScene / this.scene.heliscale;
   
     this.targetAltitude = localTargetY;
     console.log("descer até:", localTargetY);
@@ -591,7 +591,7 @@ export class MyHeli extends CGFobject {
   backToCruiseAltitude(currentWorldY) {
     this.isCollectingWater = false;
     const desiredWorldY = this.cruiseAltitude; 
-    const scale = 0.6;
+    const scale = this.scene.heliscale;
 
     const deltaYScene = desiredWorldY - currentWorldY;
     const localTargetY = this.position.y + deltaYScene / scale;
@@ -620,7 +620,7 @@ export class MyHeli extends CGFobject {
     const heliWorldPos = this.scene.getHeliWorldPosition();
 
     const dropX = heliWorldPos.x + rotatedX * scale;
-    const dropY = heliWorldPos.y + rotatedY * scale - 1;
+    const dropY = heliWorldPos.y + rotatedY * scale - 2;
     const dropZ = heliWorldPos.z + rotatedZ * scale;
 
     console.log("Drop pos (final):", dropX, dropY, dropZ);

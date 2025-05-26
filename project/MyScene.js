@@ -32,7 +32,7 @@ export class MyScene extends CGFscene {
     this.realisticFire = false;
     this.fireSpreadInterval = 3000;
     this.lastFireSpreadTime = 0;
-    this.heliscale = 0.6;
+    this.heliscale = 0.35;
 
     super.init(application);
     this.initTextures();
@@ -354,9 +354,10 @@ export class MyScene extends CGFscene {
       const buildingCenterX = ((this.windowsPerFloor-3) * unitSize * scale) / 2;
 
       if (this.displayBuilding)
-        this.translate(0, buildingHeight * scale + 5.6, -12 -buildingCenterX);
+        this.translate(0, buildingHeight * scale + 3.3, -12 -buildingCenterX);
       else 
-        this.translate(0, 5.7, -12);
+        this.translate(0, 3.3, -12);
+        // this.translate(0, 5.7, -12);
 
       this.scale(this.heliscale, this.heliscale, this.heliscale);
       this.heli.display();
@@ -546,7 +547,6 @@ export class MyScene extends CGFscene {
   }
 
   getHeliWorldPosition() {
-    const scale = 0.6;
     const buildingScale = 5;
     const heightPerFloor = 1;
     const buildingHeight = (this.numFloorsSide + 1) * heightPerFloor;
@@ -559,9 +559,9 @@ export class MyScene extends CGFscene {
       z: -12 - buildingCenterX
     };
   
-    const worldX = sceneTranslation.x + this.heli.position.x * scale;
-    const worldY = sceneTranslation.y + this.heli.position.y * scale;
-    const worldZ = sceneTranslation.z + this.heli.position.z * scale;
+    const worldX = sceneTranslation.x + this.heli.position.x * this.heliscale;
+    const worldY = sceneTranslation.y + this.heli.position.y * this.heliscale;
+    const worldZ = sceneTranslation.z + this.heli.position.z * this.heliscale;
   
     return { x: worldX, y: worldY, z: worldZ };
   }  
@@ -624,13 +624,13 @@ export class MyScene extends CGFscene {
           heli.targetPitch = 0; 
         }
 
-        if (this.gui.isKeyPressed("KeyA") && !heli.isCollectingWater && !heli.returningToCruise) {
+        if (this.gui.isKeyPressed("KeyA")) {
           heli.turn(0.05); 
           heli.targetRoll = heli.maxRoll;
           heli.tailBladeTargetSpeed = -heli.tailBladeMaxSpeed;
           console.log("Helicopter Left");
         }
-        if (this.gui.isKeyPressed("KeyD") && !heli.isCollectingWater && !heli.returningToCruise) {
+        if (this.gui.isKeyPressed("KeyD")) {
           heli.turn(-0.05); 
           heli.targetRoll = heli.maxRoll;
           heli.tailBladeTargetSpeed = +heli.tailBladeMaxSpeed;
@@ -745,15 +745,15 @@ export class MyScene extends CGFscene {
   }
   
   startWaterDrop(x, y, z) {
-  const numSpheres = 40;
+  const numSpheres = 100;
 
   for (let i = 0; i < numSpheres; i++) {
-    const scaleXZ = 0.6 + Math.random() * 1.5;
-    const scaleY = 1.2 + Math.random() * 2;
+    const scaleXZ = 0.3 + Math.random() * 0.4;
+    const scaleY = 0.4 + Math.random() * 0.5;  
     const speed = 2 + Math.random() * 3; 
 
     const dirAngle = Math.random() * 2 * Math.PI;
-    const spreadSpeed = 0.05 + Math.random() * 0.2; 
+    const spreadSpeed = 0.1 + Math.random() * 0.2; 
 
     this.fallingWaterSpheres.push({
       sphere: new MySphere(this, 0.5, 16, 8, false),
@@ -772,8 +772,6 @@ export class MyScene extends CGFscene {
     });
   }
 }
-
-
 
   getForestBounds() {
     const treeWorldX = this.forest.trees.map(t => t.x * this.forestScale + this.forestTX);

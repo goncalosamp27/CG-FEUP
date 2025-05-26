@@ -28,18 +28,19 @@ export class MyBuilding {
     this.door = new MyPlane(scene, 10);  
     this.window = new MyWindow(scene, 1, 1, this.windowTexture);
     this.helipad = new MyPlane(scene, 10);  
+
     this.signalLights = [
-      new MyPrism(scene, 8, 0.1, 0.05),
-      new MyPrism(scene, 8, 0.1, 0.05),
-      new MyPrism(scene, 8, 0.1, 0.05),
-      new MyPrism(scene, 8, 0.1, 0.05)
+      new MyPrism(scene, 8, 0.10, 0.06),
+      new MyPrism(scene, 8, 0.10, 0.06),
+      new MyPrism(scene, 8, 0.10, 0.06),
+      new MyPrism(scene, 8, 0.10, 0.06)
     ];
 
     this.signalLightSpheres = [
-      new MySphere(scene, 0.05, 12, 6),
-      new MySphere(scene, 0.05, 12, 6),
-      new MySphere(scene, 0.05, 12, 6),
-      new MySphere(scene, 0.05, 12, 6)
+      new MySphere(scene, 0.053, 12, 6),
+      new MySphere(scene, 0.053, 12, 6),
+      new MySphere(scene, 0.053, 12, 6),
+      new MySphere(scene, 0.053, 12, 6)
     ];
   }
 
