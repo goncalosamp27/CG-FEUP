@@ -370,10 +370,10 @@ export class MyHeli extends CGFobject {
 
     if (this.state === "flying") {
       if (this.turningLeft) {
-        this.scene.rotate(0.15, 0, 0, 1); // inclina para a esquerda
+        this.scene.rotate(0.15, 0, 0, 1); 
       } 
       else if (this.turningRight) {
-        this.scene.rotate(-0.15, 0, 0, 1); // inclina para a direita
+        this.scene.rotate(-0.15, 0, 0, 1); 
       }
 
       this.position.x += this.velocity * this.direction.x * delta;
@@ -386,35 +386,33 @@ export class MyHeli extends CGFobject {
       this.pitch += pitchDiff * 5 * delta;
     }    
 
-    // ATERRAR
+    
     if (this.isReturningToBase) {
       const deltaY = this.position.y - this.initialPosition.y;
 
-      if(deltaY <= 2) {
-        if (this.hoverActive) {
-          this.hoverActive = false;
-          this.hoverOffsetX = 0;
-          this.hoverOffsetY = 0;
-          this.hoverOffsetZ = 0;
-        }
+      if (deltaY <= 2 && this.hoverActive) {
+        this.hoverActive = false;
+        this.hoverOffsetX = 0;
+        this.hoverOffsetY = 0;
+        this.hoverOffsetZ = 0;
       }
-    
-      let angleDiff = this.targetOrientation - this.orientation;
 
-      angleDiff = ((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI;
+      let angleDiff = this.targetOrientation - this.orientation;
+      angleDiff = this.normalizeAngle(angleDiff);
 
       const maxAngularSpeed = 1.5;
-      const angleStep = Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), maxAngularSpeed * delta);
+      const angleStep = Math.sign(angleDiff) *
+        Math.min(Math.abs(angleDiff), maxAngularSpeed * delta);
 
       this.orientation += angleStep;
 
       const dx = this.initialPosition.x - this.position.x;
       const dz = this.initialPosition.z - this.position.z;
       const distanceXZ = Math.sqrt(dx * dx + dz * dz);
-    
-      const moveSpeed = 5; 
-      const descendSpeed = 2; 
-    
+
+      const moveSpeed = 7;
+      const descendSpeed = 2;
+
       if (distanceXZ > 0.1) {
         const dirX = dx / distanceXZ;
         const dirZ = dz / distanceXZ;
@@ -423,11 +421,10 @@ export class MyHeli extends CGFobject {
       } else {
         this.position.x = this.initialPosition.x;
         this.position.z = this.initialPosition.z;
-    
+
         if (deltaY > 0.01) {
           this.position.y -= descendSpeed * delta;
         } else {
-          // fm aterragem
           this.position.y = this.initialPosition.y;
           this.state = "landed";
           this.tailBladeTargetSpeed = 0;
@@ -438,6 +435,7 @@ export class MyHeli extends CGFobject {
         }
       }
     }
+
     // ATERRAR    
     
     this.roll += (this.targetRoll - this.roll) * this.rollSpeed * delta;
@@ -627,5 +625,12 @@ export class MyHeli extends CGFobject {
     this.scene.startWaterDrop(dropX, dropY, dropZ);
   }
 
+  mod(x,m) {
+    return ((x % m) + m) % m;
+  }
+
+   normalizeAngle(a) {
+    return this.mod(a + Math.PI, 2 * Math.PI) - Math.PI;
+  }
 }
 

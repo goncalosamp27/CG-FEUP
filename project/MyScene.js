@@ -14,6 +14,7 @@ export class MyScene extends CGFscene {
     super();
   }
   init(application) {
+    this.followPanorama = true;
     this.displayAxis = false;
     this.displayPlane = true;
     this.displayGlobe = false;
@@ -303,6 +304,8 @@ export class MyScene extends CGFscene {
 
     if(this.displayPanorama) {
       this.pushMatrix();
+      if (this.followPanorama) this.translate(0,-25,0);
+      else this.translate(0,-10,0);
       this.panorama.display();
       this.setDefaultAppearance();
       this.popMatrix();
