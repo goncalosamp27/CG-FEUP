@@ -56,16 +56,16 @@ export class MyScene extends CGFscene {
     this.plane = new MyPlane(this, 1, 0, 10, 0, 10);
     this.sphere = new MySphere(this, 10, 50, 50);
 
-    const panoramaTexture = new CGFappearance(this);
-    panoramaTexture.setEmission(1.0, 1.0, 1.0, 1.0);
-    panoramaTexture.setAmbient(0.0, 0.0, 0.0, 1.0);
-    panoramaTexture.setDiffuse(0.0, 0.0, 0.0, 1.0);
-    panoramaTexture.setSpecular(0.0, 0.0, 0.0, 1.0);
-    panoramaTexture.setShininess(0.0);
-    panoramaTexture.loadTexture("textures/background.jpg");
-    panoramaTexture.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
+    this.panoramaTexture = new CGFappearance(this);
+    this.panoramaTexture.setEmission(1.0, 1.0, 1.0, 1.0);
+    this.panoramaTexture.setAmbient(0.0, 0.0, 0.0, 1.0);
+    this.panoramaTexture.setDiffuse(0.0, 0.0, 0.0, 1.0);
+    this.panoramaTexture.setSpecular(0.0, 0.0, 0.0, 1.0);
+    this.panoramaTexture.setShininess(0.0);
+    this.panoramaTexture.loadTexture("textures/background.jpg");
+    this.panoramaTexture.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
 
-    this.panorama = new MyPanorama(this, panoramaTexture);
+    this.panorama = new MyPanorama(this, this.panoramaTexture);
 
     this.grassMaterial = new CGFappearance(this);
     this.grassMaterial.setAmbient(1, 1, 1, 1);
@@ -130,7 +130,7 @@ export class MyScene extends CGFscene {
 
     this.cloudsTexture = new CGFtexture(this, "textures/clouds.jpg")
     this.cloudShader = new CGFshader(this.gl, "shaders/cloud.vert", "shaders/cloud.frag");
-    this.cloudShader.setUniformsValues({ uSampler2: 1, timeFactor: 0 }); 
+    this.cloudShader.setUniformsValues({ uSampler2: 1, timeFactor: 0, cloudHeight:  0.07 }); 
 
     this.windFactor = 3;
   }
@@ -162,7 +162,7 @@ export class MyScene extends CGFscene {
     this.heli.update(t);
     this.waterShader.setUniformsValues({ timeFactor: this.windFactor / 2  * t / 100.0 % 1000 });
     this.fireShader.setUniformsValues({ timeFactor: this.windFactor / 4 * t / 100.0 % 1000 });
-    this.cloudShader.setUniformsValues({ uSampler2: 1,   cloudOffset: 0.1, timeFactor: this.windFactor * (t / 1000.0) % 1000 });
+    this.cloudShader.setUniformsValues({ uSampler2: 1,  timeFactor: this.windFactor * (t / 400.0) % 1000 });
 
     if (this.realisticFire && !this.fireAlreadyStarted && !this.displayFire) {
         const randomTreeData = this.forest.trees[Math.floor(Math.random() * this.forest.trees.length)];
@@ -322,8 +322,8 @@ export class MyScene extends CGFscene {
       else this.translate(0,-17,0);
 
       this.setActiveShader(this.cloudShader);
-
-        this.panorama.display();
+      this.panoramaTexture.texture.bind(0);
+      this.panorama.display();
       this.setDefaultAppearance();
       this.setActiveShader(this.defaultShader);
       this.popMatrix();
