@@ -5,7 +5,6 @@
 ## Project Notes
 
 ### MyPanoram
-
 ![Screenshot 1](screenshots/project-t03-g10-1.png)
 Figura 1: Panorama (1ª perspetiva)
 
@@ -34,3 +33,7 @@ Figura 6: Helicóptero, com um balde, a apanhar água do lago
 ### MyFire
 ![Screenshot 7](screenshots/project-t03-g10-7.png)
 Figura 7: Incêndio na floresta
+
+### MyPanoram (Shaders)
+![Screenshot 8](screenshots/project-t03-g10-8.png)
+Figura 8: Núvens no panorama
