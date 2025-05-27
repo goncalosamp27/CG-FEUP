@@ -99,7 +99,7 @@ export class MyScene extends CGFscene {
     this.waterMaterial.setTextureWrap("REPEAT", "REPEAT");
 
     this.waterShader = new CGFshader(this.gl, "shaders/water.vert", "shaders/water.frag");
-    this.waterShader.setUniformsValues({ uSampler2: 2, timeFactor: 0 });
+    this.waterShader.setUniformsValues({ uSampler2: 2, uSampler2: 2, timeFactor: 0 });
 
     this.waterMapTexture = new CGFtexture(this, "textures/waterMap.jpg");
 
