@@ -127,15 +127,22 @@ export class MyScene extends CGFscene {
     this.waterDropMaterial.setShininess(100);               
 
     this.fallingWaterSpheres = [];
+
+    this.cloudsTexture = new CGFtexture(this, "textures/clouds.jpg")
+    this.cloudShader = new CGFshader(this.gl, "shaders/cloud.vert", "shaders/cloud.frag");
+    this.cloudShader.setUniformsValues({ uSampler2: 1, timeFactor: 0 }); 
+
+    this.windFactor = 3;
   }
   
   initLights() {
-    this.lights[0].setPosition(200, 200, 200, 1);
+    this.lights[0].setPosition(100, 100, 100, 1);
     this.lights[0].setAmbient(0.2, 0.2, 0.2, 1.0);
     this.lights[0].setDiffuse(1.0, 1.0, 1.0, 1.0);
     this.lights[0].enable();
     this.lights[0].update();
   }
+
   initCameras() {
     this.camera = new CGFcamera(
       Math.PI / 2, 
@@ -149,11 +156,13 @@ export class MyScene extends CGFscene {
   
   update(t) {
     this.time = t;
+    
     this.checkKeys();
     this.building.update(t);
     this.heli.update(t);
-    this.waterShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
-    this.fireShader.setUniformsValues({ timeFactor: t / 100.0 % 1000 });
+    this.waterShader.setUniformsValues({ timeFactor: this.windFactor / 2  * t / 100.0 % 1000 });
+    this.fireShader.setUniformsValues({ timeFactor: this.windFactor / 4 * t / 100.0 % 1000 });
+    this.cloudShader.setUniformsValues({ uSampler2: 1,   cloudOffset: 0.1, timeFactor: this.windFactor * (t / 1000.0) % 1000 });
 
     if (this.realisticFire && !this.fireAlreadyStarted && !this.displayFire) {
         const randomTreeData = this.forest.trees[Math.floor(Math.random() * this.forest.trees.length)];
@@ -186,7 +195,9 @@ export class MyScene extends CGFscene {
 
         this.fireAlreadyStarted = true;
     }
-    const dynamicSpreadInterval = Math.pow(this.forestSpacing, 1.2) * 500;
+    const baseInterval = Math.pow(this.forestSpacing, 1.2) * 500;
+    const windMultiplier = 1.0 - (Math.min(this.windFactor, 10) / 3) * 0.8;
+    const dynamicSpreadInterval = baseInterval * windMultiplier;
 
     if (this.realisticFire && t - this.lastFireSpreadTime > dynamicSpreadInterval + this.nextFireSpreadDelay) {
         this.spreadFire();
@@ -297,6 +308,7 @@ export class MyScene extends CGFscene {
     this.loadIdentity();
     this.applyViewMatrix();
     
+    
     if (this.displayAxis) {
       this.setDefaultAppearance();
       this.axis.display();
@@ -304,10 +316,16 @@ export class MyScene extends CGFscene {
 
     if(this.displayPanorama) {
       this.pushMatrix();
+      this.cloudsTexture.bind(1);
+
       if (this.followPanorama) this.translate(0,-25,0);
-      else this.translate(0,-10,0);
-      this.panorama.display();
+      else this.translate(0,-17,0);
+
+      this.setActiveShader(this.cloudShader);
+
+        this.panorama.display();
       this.setDefaultAppearance();
+      this.setActiveShader(this.defaultShader);
       this.popMatrix();
     }
 
@@ -751,8 +769,8 @@ export class MyScene extends CGFscene {
   const numSpheres = 100;
 
   for (let i = 0; i < numSpheres; i++) {
-    const scaleXZ = 0.3 + Math.random() * 0.4;
-    const scaleY = 0.4 + Math.random() * 0.5;  
+    const scaleXZ = 0.3 + Math.random() * 0.6;
+    const scaleY = 0.4 + Math.random() * 0.7;  
     const speed = 2 + Math.random() * 3; 
 
     const dirAngle = Math.random() * 2 * Math.PI;
