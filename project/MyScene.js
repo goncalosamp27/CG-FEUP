@@ -103,9 +103,9 @@ export class MyScene extends CGFscene {
 
     this.waterMapTexture = new CGFtexture(this, "textures/waterMap.jpg");
 
-    this.lakeRadius = 10;
-    this.lakeTX = -30;
-    this.lakeTZ = 15;
+    this.lakeRadius = 12;
+    this.lakeTX = 0;
+    this.lakeTZ = 35;
     this.lake = new MyLake(this, this.lakeRadius, 0.1);
 
     this.forestTX = 30;
@@ -148,8 +148,8 @@ export class MyScene extends CGFscene {
       Math.PI / 2, 
       0.1,
       1000,
-      vec3.fromValues(-25, 10, 40),
-      vec3.fromValues(0, 0, 0)
+      vec3.fromValues(-22, 25, 50),
+      vec3.fromValues(30, 0, 0)
     );
   }
   
@@ -160,7 +160,7 @@ export class MyScene extends CGFscene {
     this.checkKeys();
     this.building.update(t);
     this.heli.update(t);
-    this.waterShader.setUniformsValues({ timeFactor: this.windFactor / 2  * t / 100.0 % 1000 });
+    this.waterShader.setUniformsValues({ timeFactor: this.windFactor / 2  * t / 100.0 % 1000, windSpeed:  this.windFactor });
     this.fireShader.setUniformsValues({ timeFactor: this.windFactor / 4 * t / 100.0 % 1000 });
     this.cloudShader.setUniformsValues({ uSampler2: 1,  timeFactor: this.windFactor * (t / 400.0) % 1000 });
 
@@ -222,12 +222,19 @@ export class MyScene extends CGFscene {
           tree.fire = null;
         });
         this.fireAlreadyStarted = false;
+        this.fallingWaterSpheres = [];
+        this.displayFire = false;
+        this.realisticFire    = false;
       }
     }
 
-    // AGUA
     for (const drop of this.fallingWaterSpheres) {
       if (!drop.active) continue;
+
+      if (drop.delay > 0) {
+        drop.delay -= 0.05;     
+        continue;
+      }
 
       drop.lifetime += 0.05;
 
@@ -596,7 +603,7 @@ export class MyScene extends CGFscene {
         this.resetHeli();
       } 
 
-      if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL") && !heli.isBucketFull) {
+      if (heli.state === "flying" && !heli.isReturningToBase && heli.velocity === 0 && this.gui.isKeyPressed("KeyL") && !heli.isBucketFull && this.displayLake) {
         if (this.heli.isOverLake(this.lakeTX, this.lakeTZ, this.lakeRadius-1, worldPos.x, worldPos.z) && !heli.isBucketFull) {
           console.log("OVER LAKE"); 
           heli.collectWater(worldPos.y);
@@ -620,7 +627,7 @@ export class MyScene extends CGFscene {
         }
       }
 
-      if (this.gui.isKeyPressed("KeyO") && heli.isBucketFull) {
+      if (this.gui.isKeyPressed("KeyO") && heli.isBucketFull && this.displayForest) {
         const { x, z } = this.getHeliWorldPosition();
         const bounds = this.getForestBounds();
 
@@ -789,7 +796,8 @@ export class MyScene extends CGFscene {
       active: true,
       scaleXZ: scaleXZ,
       scaleY: scaleY,
-      lifetime: 0
+      lifetime: 0,
+      delay: 0.2
     });
   }
 }
