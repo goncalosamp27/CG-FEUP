@@ -2,6 +2,7 @@ import { CGFobject, CGFappearance } from '../lib/CGF.js';
 import { MyPlane } from './MyPlane.js'; 
 
 export class MyWindow extends CGFobject {
+  // JANELA NO PLANO COM TEXTURA
   constructor(scene, width = 1, height = 1, appearance) {
     super(scene);
 

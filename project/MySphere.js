@@ -1,6 +1,13 @@
 import { CGFobject } from '../lib/CGF.js';
 
 export class MySphere extends CGFobject {
+/**
+   * @param {CGFscene} scene       
+   * @param {number} radius        - raio
+   * @param {number} slices        - divisões ao redor do eixo (longitude)
+   * @param {number} stacks        - divisões de pólo a pólo (latitude)
+   * @param {boolean} invertNormals - Inverte as normais para panoramas
+   */
 	constructor(scene, radius, slices, stacks, invertNormals = false) {
 		super(scene);
 		this.radius = radius;

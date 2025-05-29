@@ -4,6 +4,21 @@ import { MyPrism } from './MyPrism.js';
 import { MySphere } from './MySphere.js';
 
 export class MyBuilding {
+  /**
+   * Construtor do edifício
+   * @param {CGFscene} scene                 
+   * @param {number} numFloorsSide           - andares laterais
+   * @param {number} windowsperfloor         - janelas por andar
+   * @param {CGFappearance} windowTexture    - material/textura das janelas
+   * @param {Array} color                    - Cor base
+   * @param {CGFappearance} wallMaterial     - Material/textura das paredes
+   * @param {CGFappearance} doorMaterial     - Material/textura da porta
+   * @param {CGFappearance} signMaterial     - Material/textura da placa
+   * @param {CGFappearance} helipadMaterial  - Material do heliponto
+   * @param {Object} helipadTextures         - Texturas (normal, up, down) do heliponto
+   * @param {CGFappearance} signalLightBaseMaterial  - Material da base dos faróis
+   * @param {CGFappearance} signalLightPulseMaterial - Material pulsante dos faróis
+  */
   constructor(scene, numFloorsSide,windowsperfloor, windowTexture, color, wallMaterial, doorMaterial, signMaterial, helipadMaterial,  helipadTextures, signalLightBaseMaterial, signalLightPulseMaterial) {
     this.scene = scene;
     this.numFloorsSide = numFloorsSide;
@@ -18,6 +33,7 @@ export class MyBuilding {
     this.signalLightBaseMaterial = signalLightBaseMaterial;
     this.signalLightPulseMaterial = signalLightPulseMaterial;
 
+    // calcular  a width tendo em conta as windows
     this.totalWidth = this.windowsperfloor * 3;
 
     this.initModules();
@@ -29,13 +45,14 @@ export class MyBuilding {
     this.window = new MyWindow(scene, 1, 1, this.windowTexture);
     this.helipad = new MyPlane(scene, 10);  
 
+    // luz sinalizadora (base)
     this.signalLights = [
       new MyPrism(scene, 8, 0.10, 0.06),
       new MyPrism(scene, 8, 0.10, 0.06),
       new MyPrism(scene, 8, 0.10, 0.06),
       new MyPrism(scene, 8, 0.10, 0.06)
     ];
-
+    // luz sinalizadora (lampada)
     this.signalLightSpheres = [
       new MySphere(scene, 0.053, 12, 6),
       new MySphere(scene, 0.053, 12, 6),
@@ -78,7 +95,7 @@ export class MyBuilding {
     this.signalLightPulseMaterial.setEmission(pulse, 0, 0, 1);
   }
 
-
+  // display com base no estado do helicoptero para as luzes sinalizadoras
   display(heliState, time) {
     const helipadWidth  = this.centralWidth * 0.7;
     const helipadDepth  = this.centralWidth * 0.7;
@@ -152,7 +169,7 @@ export class MyBuilding {
     this.scene.rotate(-Math.PI / 2, 1, 0, 0);
     this.scene.scale(helipadWidth, helipadDepth, 1);
 
-    
+    // texturas do heliporto ccontroladas pelo estado de movimento do helicoptero 
     let textureToUse = this.helipadTextures.normal;
     if (heliState === "taking_off") textureToUse = this.helipadTextures.up;
     if (heliState === "landing")    textureToUse = this.helipadTextures.down;
@@ -167,7 +184,7 @@ export class MyBuilding {
 
     this.scene.popMatrix();
   }
-
+  // da display a um dos modulos, o center indica se é o modulo do meio
   displayModule(floors, width, xOffset, center = false, depthOverride = null) {
     const height = floors * this.floorHeight;
     const depth = depthOverride !== null ? depthOverride : this.depth;

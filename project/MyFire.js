@@ -5,20 +5,25 @@ export class MyFire extends CGFobject {
   constructor(scene) {
     super(scene);
     this.scene      = scene;
-    this.centerScale = 1.5;
-    this.flames     = [];
-    this.offsetAngle = Math.random() * 2 * Math.PI;
-    this.initFlames();
+    this.centerScale = 1.5; // escala das chamas centrais (maior que as outras)
+    this.flames     = []; // array de chamas
+    this.offsetAngle = Math.random() * 2 * Math.PI; // angulo aleatorio que roda o fogo
+    this.initFlames(); // popular array de chamas
 
-    this.creationTime = this.scene.time;
-    this.growthDuration = 500 + Math.random() * 2000;
+    this.creationTime = this.scene.time; 
+    this.growthDuration = 500 + Math.random() * 2000; // tempo a acender
 
     this.isExtinguishing = false;
     this.extinguishStartTime = null;
-    this.extinguishDuration = 500 + Math.random() * 2000;
+    this.extinguishDuration = 500 + Math.random() * 2000; // tempo a apagar
   }
 
   initFlames() {
+    /*
+      gerar random flames, se for central a escala é maior
+      as 2 centrais fazem 90º uma com a outra
+      as restantes ficam a volta das centrais com um angulo de 360 / nº chamas, para ficarem equidistantes
+    */
     const count = Math.floor(Math.random() * 6) + 1;
 
     for (let i = 0; i < count; i++) {
@@ -40,6 +45,7 @@ export class MyFire extends CGFobject {
       });
     });
   }
+  // display das chamas controlados pelo tempo de crescimento e de apagão
   display(currentTime) {
     const growthScale = this.getCurrentScale(currentTime);
     const radius = -0.5;
@@ -64,20 +70,20 @@ export class MyFire extends CGFobject {
   }
 
   getCurrentScale(currentTime) {
-  const elapsed = currentTime - this.creationTime;
+    const elapsed = currentTime - this.creationTime;
 
-  if (!this.isExtinguishing) {
-    const growthProgress = Math.min(elapsed / this.growthDuration, 1.0);
-    return growthProgress;
-  } 
-  else {
-    const fadeElapsed = currentTime - this.extinguishStartTime;
-    const fadeProgress = Math.min(fadeElapsed / this.extinguishDuration, 1.0);
-    return Math.max(1.0 - fadeProgress, 0);
+    if (!this.isExtinguishing) {
+      const growthProgress = Math.min(elapsed / this.growthDuration, 1.0);
+      return growthProgress;
+    } 
+    else {
+      const fadeElapsed = currentTime - this.extinguishStartTime;
+      const fadeProgress = Math.min(fadeElapsed / this.extinguishDuration, 1.0);
+      return Math.max(1.0 - fadeProgress, 0);
+    }
   }
-}
 
-
+  // para apagar as chamas
   startExtinguish(currentTime) {
     this.isExtinguishing = true;
     this.extinguishStartTime = currentTime;

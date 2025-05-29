@@ -1,6 +1,12 @@
 import { CGFobject } from "../lib/CGF.js";
 
 export class MyLake extends CGFobject {
+  /**
+   * @param {CGFscene} scene
+   * @param {number} radius      - Raio do lago
+   * @param {number} positionY   - Altura no eixo Y 
+   * @param {number} slices      - Número de divisões do círculo 
+  */
   constructor(scene, radius, positionY = 0.1, slices = 128) {
     super(scene);
     this.radius = radius;
@@ -43,7 +49,7 @@ export class MyLake extends CGFobject {
     this.primitiveType = this.scene.gl.TRIANGLES;
     this.initGLBuffers();
   }
-
+  // desenhar lago, translaçao em y e rotação para ficar paralelo ao chao
   display() {
     this.scene.pushMatrix();
 

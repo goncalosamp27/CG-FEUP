@@ -1,6 +1,14 @@
 import { CGFobject } from '../lib/CGF.js';
 
 export class MyBlade extends CGFobject {
+
+  /**
+   * @param {CGFscene} scene    
+   * @param {number} baseWidth   - largura base 
+   * @param {number} topWidth    - largura  extremidade 
+   * @param {number} height      - espessura
+   * @param {number} length      - comprimento 
+   */
   constructor(scene, baseWidth = 0.8, topWidth = 1.5, height = 0.2, length = 15) {
     super(scene);
     this.baseWidth = baseWidth;

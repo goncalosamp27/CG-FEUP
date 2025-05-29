@@ -2,6 +2,13 @@ import { CGFobject } from '../lib/CGF.js';
 import { MyTree } from './MyTree.js';
 
 export class MyForest extends CGFobject {
+/**
+
+   * @param {CGFscene} scene    
+   * @param {number} rows       - linhas de arvores
+   * @param {number} cols       - colunas de arvores
+   * @param {number} spacing    - espaçamento
+*/
 	constructor(scene, rows = 5, cols = 4, spacing = 3.5) {
 		super(scene);
 		this.scene = scene;
@@ -9,10 +16,11 @@ export class MyForest extends CGFobject {
 		this.rows = rows;
 		this.cols = cols;
 		this.spacing = spacing;
-		this.trees = [];
+		this.trees = []; // armazenar cada arvore da floresta
 
 		for (let i = 0; i < rows; i++) {
 			for (let j = 0; j < cols; j++) {
+				// random deslocamento
 				const jitter = this.spacing * 0.5;
 				const offsetX = (Math.random() - 0.5) * jitter;
 				const offsetZ = (Math.random() - 0.5) * jitter;
@@ -54,10 +62,19 @@ export class MyForest extends CGFobject {
 		}
 	}
 
+
+  /**
+   * Renderiza a floresta:
+   * 1) Ordena as árvores de trás para frente em relação à câmera (para transparências)
+   * 2) Desenha fogo em chamas ativas
+   * 3) Desenha todas as árvores
+   */
 	display() {
+		// Posição da câmera no plano XZ
 		const camX = this.scene.camera.position[0];
 		const camZ = this.scene.camera.position[2];
 		
+    // Ordena de forma que desenhe primeiro as mais distantes -> por causa da textura png com blend
 		this.trees.sort((a, b) => {
 			const dA = (a.x - camX)**2 + (a.z - camZ)**2;
 			const dB = (b.x - camX)**2 + (b.z - camZ)**2;
@@ -69,6 +86,7 @@ export class MyForest extends CGFobject {
 		this.scene.fireTexture.bind(1);
 		this.scene.fireShader.setUniformsValues({ uSampler: 1 });
 
+		// Posiciona o fogo ao redor do tronco, com offset e rotação próprios caso estejam a arder
 		for (let { tree, x, z } of this.trees) {
 			if (tree.hasFire && tree.fire) {
 				this.scene.pushMatrix();
@@ -82,7 +100,7 @@ export class MyForest extends CGFobject {
 
 		this.scene.setActiveShaderSimple(this.scene.defaultShader);
 
-	
+		// Desenha cada árvore em sua posição
 		for (let { tree, x, z } of this.trees) {
 			this.scene.pushMatrix();
 			this.scene.translate(x, 0, z);
@@ -92,7 +110,7 @@ export class MyForest extends CGFobject {
 
 		
 	}
-
+	// variaçao da cor da arvore
 	varyColor(baseColor, jitter = 0.1) {
 		return baseColor.map(c => {
 		  let variation = (Math.random() - 0.5) * 2 * jitter; 

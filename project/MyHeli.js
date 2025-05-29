@@ -6,6 +6,12 @@ import { MyLake } from './MyLake.js';
 import { MyRope } from './MyRope.js';
 
 export class MyHeli extends CGFobject {
+
+  /**
+   * @param {CGFscene} scene        
+   * @param {Object} textures       - texturas usadas no modelo
+   * @param {number} cruiseAltitude - Altitude de cruzeiro
+  */
   constructor(scene, textures, cruiseAltitude) {
     super(scene);
     this.scene = scene;
@@ -13,22 +19,23 @@ export class MyHeli extends CGFobject {
     this.cruiseAltitude = cruiseAltitude;
 
     this.slices = 8;
-    this.radius = 5;
+    this.radius = 5;  
 
+    // Componentes do helicoptero
     // Prism: (scene, slices, height, radius)
     // Frustum: (scene, slice, height, baseRadius, topRadius, tipOffset)
-    this.body = new MyPrism(scene, this.slices, 10, this.radius); 
-    this.cockpit = new MyFrustum(scene, this.slices, 5, this.radius, 2.2, [0, -0.6, 0]); 
-    this.tail = new MyFrustum(scene, this.slices, 19.5, this.radius, 0.2, [0, 6, 0])
-    this.pole = new MyPrism(scene, this.slices, 7, 0.6);
-    this.rotor = new MyPrism(scene, this.slices, 1.5, 1);
-    this.rotor2 = new MyFrustum(scene, this.slices, 0.3, 1, 0.6);
-    this.leg = new MyPrism(scene, this.slices, 6, 0.4);
-    this.skid = new MyPrism(scene, this.slices, 15, 0.5);
-    this.miniRotor = new MyPrism(scene,this.slices,1,0.5);
-    this.miniRotor2 = new MyFrustum(scene, this.slices, 0.3, 1, 0.5);
-    this.blade = new MyBlade(this.scene);
-    this.miniblade = new MyBlade(this.scene, 1.5, 0.5, 0.05, 3);
+    this.body = new MyPrism(scene, this.slices, 10, this.radius); // corpo (central)
+    this.cockpit = new MyFrustum(scene, this.slices, 5, this.radius, 2.2, [0, -0.6, 0]); // parte de frente / cabeça
+    this.tail = new MyFrustum(scene, this.slices, 19.5, this.radius, 0.2, [0, 6, 0]); // cauda
+    this.pole = new MyPrism(scene, this.slices, 7, 0.6); // pole das helices
+    this.rotor = new MyPrism(scene, this.slices, 1.5, 1); // componente do pole 1
+    this.rotor2 = new MyFrustum(scene, this.slices, 0.3, 1, 0.6); // componente do pole 2
+    this.leg = new MyPrism(scene, this.slices, 6, 0.4); // perna do helicoptero 1
+    this.skid = new MyPrism(scene, this.slices, 15, 0.5); // barra de pouso
+    this.miniRotor = new MyPrism(scene,this.slices,1,0.5); // mini rotor das helices de tras
+    this.miniRotor2 = new MyFrustum(scene, this.slices, 0.3, 1, 0.5); // mini rotor das helices de tras2
+    this.blade = new MyBlade(this.scene); // laminas de cima
+    this.miniblade = new MyBlade(this.scene, 1.5, 0.5, 0.05, 3); // laminas de tras (pequenas)
 
     this.position = { x: 0, y: 0, z: 0 };
     this.state = "landed"; // "landed",  // "taking_off", // "flying"
@@ -83,8 +90,10 @@ export class MyHeli extends CGFobject {
     this.bucketDropTargetY = -15;     
     this.bucketDropSpeed = 3;        
 
+    // para o balde com água
     this.water = new MyLake(scene, 3.3, 0.1, 128);
 
+    // cordas que seguram o balde
     this.cable1 = new MyRope(scene);
     this.cable2 = new MyRope(scene);
   }
@@ -122,6 +131,7 @@ export class MyHeli extends CGFobject {
     this.cable1.display();
     this.cable2.display();
 
+    // para animaçao de coletar agua
     if (this.isCollectingWater || this.isBucketFull || this.isBucketOut) {
       this.scene.pushMatrix();
         this.scene.rotate(Math.PI/2, 1, 0, 0);
@@ -136,6 +146,7 @@ export class MyHeli extends CGFobject {
       this.scene.popMatrix();
     }
 
+    // dislay do balde com agua
     if (this.isBucketFull && this.bucketRotation === 0) {
       this.scene.pushMatrix();
         this.scene.setActiveShader(this.scene.waterShader);
@@ -188,7 +199,7 @@ export class MyHeli extends CGFobject {
     this.textures.black.apply();
     this.skid.display();
     this.scene.popMatrix();
-    // LADO 1
+    // FIM LADO 1
 
     // LADO 2
     this.scene.pushMatrix();
@@ -213,7 +224,7 @@ export class MyHeli extends CGFobject {
     this.textures.black.apply();
     this.skid.display();
     this.scene.popMatrix();
-    // LADO 2
+    // FIM LADO 2
 
     this.scene.pushMatrix();
     this.scene.translate(22.5, 5.95,-20.5);
@@ -310,7 +321,7 @@ export class MyHeli extends CGFobject {
 
     this.scene.popMatrix();
   }
-
+  // FUNÇAO DE ROTAÇAO SEGUNDO Y DO HELICOPTERO
   turn(v) {
     if (this.isReturningToBase) return;
     
@@ -349,6 +360,7 @@ export class MyHeli extends CGFobject {
       this.hoverOffsetX = 0;
     }
     
+    // levantar voo
     if (this.state === "taking_off") {
       if (this.bladeRotationSpeed < this.maxBladeSpeed) {
         this.bladeRotationSpeed += 2 * delta; 
@@ -368,6 +380,7 @@ export class MyHeli extends CGFobject {
       }
     }
 
+    // em voo
     if (this.state === "flying") {
       if (this.turningLeft) {
         this.scene.rotate(0.15, 0, 0, 1); 
@@ -386,7 +399,7 @@ export class MyHeli extends CGFobject {
       this.pitch += pitchDiff * 5 * delta;
     }    
 
-    
+    // em retorno
     if (this.isReturningToBase) {
       const deltaY = this.position.y - this.initialPosition.y;
 
@@ -456,6 +469,7 @@ export class MyHeli extends CGFobject {
 
     this.tailBladeRotation += this.tailBladeSpeed * delta;
 
+    // para coletar a agua
     if (this.isCollectingWater) {
       const descendSpeed = 5;
       const holdTime = 2; 
@@ -477,7 +491,8 @@ export class MyHeli extends CGFobject {
       } 
     }
 
-    if (this.returningToCruise) {
+    // voltar a altitude de cruseiro
+    if (this.returningToCruise) { 
       const localCruiseY = this.cruiseAltitude / this.scene.heliscale; 
       const deltaY = localCruiseY - this.position.y;
       const ascendSpeed = 4;
@@ -499,6 +514,7 @@ export class MyHeli extends CGFobject {
       }
     }    
 
+    // balde e agua
     if (this.isCollectingWater || this.isBucketFull) {
       if (this.bucketDropOffsetY > this.bucketDropTargetY) {
         this.bucketDropOffsetY -= this.bucketDropSpeed * delta;
@@ -515,6 +531,7 @@ export class MyHeli extends CGFobject {
       }
     }
     
+    // rotaçao para despejar agua
     if (this.isDroppingWater) {
       this.bucketRotation += this.bucketRotationSpeed * delta;
       if (this.bucketRotation >= Math.PI) {
@@ -537,23 +554,24 @@ export class MyHeli extends CGFobject {
     }
   }
 
+  // funçao de aceleraçao 
   accelerate(v) {
     if (this.isReturningToBase) return;
     this.velocity += v;
     this.velocity = Math.max(0, Math.min(30, this.velocity)); // limita a velocidade
   }
-  
+  // state -> aterrar
   initiateLandingSequence() {
     this.state = "landing";
     this.isReturningToBase = true;
     this.landingTarget = { x: 0, z: -12 };
     this.targetOrientation = 0; 
   }
-
+  // trocar altitude de cruzeiro
   setCruiseAltitude(value) {
     this.cruiseAltitude = value;
   }  
-
+  // verifica se está em cima do lago (circulo, checkar a soma dos quadrados)
   isOverLake(lakeCenterX, lakeCenterZ, lakeRadius, worldX = this.position.x, worldZ = this.position.z) {
     const dx = worldX - lakeCenterX;
     const dz = worldZ - lakeCenterZ;
@@ -561,6 +579,7 @@ export class MyHeli extends CGFobject {
     return distanceSquared <= lakeRadius * lakeRadius;
   }
 
+  // checkar se esta em cima da floresta
   isOverForest(forestBeginX, forestBeginZ, forestEndX, forestEndZ, worldX, worldZ) {
     const minX = Math.min(forestBeginX, forestEndX);
     const maxX = Math.max(forestBeginX, forestEndX);
@@ -570,6 +589,7 @@ export class MyHeli extends CGFobject {
     return worldX >= minX && worldX <= maxX && worldZ >= minZ && worldZ <= maxZ;
   }
 
+  // iniciar a coleta de agua
   collectWater(currentWorldY) {
     if (this.isCollectingWater || this.isBucketFull) return;
   
@@ -586,6 +606,7 @@ export class MyHeli extends CGFobject {
     console.log("descer até:", localTargetY);
   }
 
+  // voltar a altitude de cruzeiro
   backToCruiseAltitude(currentWorldY) {
     this.isCollectingWater = false;
     const desiredWorldY = this.cruiseAltitude; 
@@ -598,6 +619,7 @@ export class MyHeli extends CGFobject {
     this.returningToCruise = true;
   }
 
+  // despejar a agua
   dropWater() {
     this.isDroppingWater = true;
     this.isReturningBucket = false;
@@ -629,7 +651,7 @@ export class MyHeli extends CGFobject {
     return ((x % m) + m) % m;
   }
 
-   normalizeAngle(a) {
+  normalizeAngle(a) {
     return this.mod(a + Math.PI, 2 * Math.PI) - Math.PI;
   }
 }

@@ -3,6 +3,17 @@
 	import { MyPlane } from './MyPlane.js';
 
 	export class MyTree extends CGFobject {
+	/**
+     * 	 @param {CGFscene} scene 
+     * 	 @param {Object} options - array de config
+     *   @param {number} height - altura
+     *   @param {number} trunkRadius - raio do tronco
+     *   @param {number} leanAngle - angolo de inclinaçao
+     *   @param {string} leanAxis - Eixo de inclinação
+     *   @param {Array} leafColor - Cor das folhas 
+     *   @param {CGFappearance} trunkMaterial - tronco material
+     *   @param {CGFappearance} leafMaterial - leaves material
+    */
 		constructor(scene, {
 			height = 6,
 			trunkRadius = 0.7,
@@ -45,7 +56,8 @@
 			this.hasFire = false;
 			this.fire = null;
 		}
-
+		// desenhar a arvore
+		// comecar pelo tronco e depois folhas, aplicar rotaçoes e translações necessarias
 		display() {
 			this.scene.pushMatrix();
 
@@ -107,7 +119,8 @@
 
 			this.scene.popMatrix();
 		}
-
+	
+	// Para ativar o incendio
 	setOnFire(fireObj) {
 		this.hasFire = true;
 		this.fire = fireObj;

@@ -1,6 +1,18 @@
 import { CGFobject } from '../lib/CGF.js';
 
 export class MyFrustum extends CGFobject {
+  // FRUSTUM -> piramide ou prisma "cortado" 
+
+  /**
+   * Constrói um frustum (pirâmide ou prisma cortado)
+   * @param {CGFscene} scene
+   * @param {number} slices       - divisoes
+   * @param {number} height       - altura
+   * @param {number} baseRadius   - raio base inferior
+   * @param {number} topRadius    - raio base superior
+   * @param {Array} tipOffset     - Deslocamento [dx, dy, dz] aplicado à base superior (padrão [0,0,0])
+   * @param {boolean} hasTop      - para o balde, desenhar face interior;
+   */
   constructor(scene, slices = 8, height = 1, baseRadius = 1, topRadius = 0.5, tipOffset = [0, 0, 0], hasTop = true) {
     super(scene);
     this.slices = slices;

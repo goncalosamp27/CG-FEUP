@@ -1,6 +1,11 @@
 import { CGFobject } from '../lib/CGF.js';
 
 export class MyPrism extends CGFobject {
+	/**
+	 * @param {number} slices    - laterais
+	 * @param {number} height    - altura
+	 * @param {number} radius    - raio base
+	 */
 	constructor(scene, slices = 8, height = 1, radius = 1) {
 		super(scene);
 		this.slices = slices;

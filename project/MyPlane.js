@@ -2,7 +2,7 @@ import {CGFobject} from '../lib/CGF.js';
 /**
 * MyPlane
 * @constructor
- * @param scene - Reference to MyScene object
+ * @param scene
  * @param nDivs - number of divisions in both directions of the surface
  * @param minS - minimum texture coordinate in S
  * @param maxS - maximum texture coordinate in S
@@ -67,7 +67,7 @@ export class MyPlane extends CGFobject {
 	{ 
 		this.primitiveType=this.scene.gl.LINES;
 	};
-
+	
 	updateTexCoords(coords) {
 		this.texCoords = [...coords];
 		this.updateTexCoordsGLBuffers();

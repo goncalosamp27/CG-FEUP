@@ -6,6 +6,8 @@ export class MyFlame extends CGFobject {
     this.initBuffers();
   }
 
+  // a chama é um triangulo equilatero na vertical
+  // adaptar depois consoante scales
   initBuffers() {
     const h = Math.sqrt(3) / 2;       
     const yBase = 0;             

@@ -2,6 +2,14 @@ import { CGFobject, CGFappearance } from '../lib/CGF.js';
 
 export class MyPyramid extends CGFobject {
     constructor(scene, slices, stacks, height = 1, radius = 1) {
+    /**
+
+     * @param {CGFscene} scene  
+     * @param {number} slices    - número de faces laterais 
+     * @param {number} stacks    - nao usado
+     * @param {number} height    - altura da pirâmide
+     * @param {number} radius    - raio da base
+     */
         super(scene);
         this.slices = slices;
         this.stacks = stacks;
@@ -18,7 +26,7 @@ export class MyPyramid extends CGFobject {
 
         let ang = 0;
         const alphaAng = 2 * Math.PI / this.slices;
-
+        // faces laterais
         for (let i = 0; i < this.slices; i++) {
             const sa = Math.sin(ang);
             const ca = Math.cos(ang);
@@ -51,7 +59,7 @@ export class MyPyramid extends CGFobject {
 
             ang += alphaAng;
         }
-
+        // --- Base poligonal ---
         const baseCenterIndex = this.vertices.length / 3;
         this.vertices.push(0, 0, 0);              
         this.normals.push(0, -1, 0);              
@@ -62,10 +70,12 @@ export class MyPyramid extends CGFobject {
             const sa = Math.sin(ang);
             const ca = Math.cos(ang);
 
+            // posição no perímetro da base
             this.vertices.push(ca * this.radius, 0, -sa * this.radius);
             this.normals.push(0, -1, 0);
             this.texCoords.push(0.5 + 0.5 * ca, 0.5 + 0.5 * sa);
 
+            // forma o triângulo (centro, próximo, atual) para fechar a base
             const idx0 = baseCenterIndex;
             const idx1 = baseCenterIndex + 1 + i;
             const idx2 = baseCenterIndex + 1 + ((i + 1) % this.slices);
