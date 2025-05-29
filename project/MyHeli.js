@@ -540,7 +540,7 @@ export class MyHeli extends CGFobject {
   accelerate(v) {
     if (this.isReturningToBase) return;
     this.velocity += v;
-    this.velocity = Math.max(0, Math.min(20, this.velocity)); // limita a velocidade
+    this.velocity = Math.max(0, Math.min(30, this.velocity)); // limita a velocidade
   }
   
   initiateLandingSequence() {

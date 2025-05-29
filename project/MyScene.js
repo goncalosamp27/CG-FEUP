@@ -103,9 +103,9 @@ export class MyScene extends CGFscene {
 
     this.waterMapTexture = new CGFtexture(this, "textures/waterMap.jpg");
 
-    this.lakeRadius = 12;
+    this.lakeRadius = 15;
     this.lakeTX = 0;
-    this.lakeTZ = 35;
+    this.lakeTZ = 50;
     this.lake = new MyLake(this, this.lakeRadius, 0.1);
 
     this.forestTX = 30;
@@ -148,7 +148,7 @@ export class MyScene extends CGFscene {
       Math.PI / 2, 
       0.1,
       1000,
-      vec3.fromValues(-22, 25, 50),
+      vec3.fromValues(-30, 20, 60),
       vec3.fromValues(30, 0, 0)
     );
   }
